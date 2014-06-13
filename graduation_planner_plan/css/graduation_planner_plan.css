@@ -1,0 +1,121 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Dec 6, 2013, 5:06:28 AM
+    Author     : mltbooks
+*/
+ul#graduation_planner_plan .content {
+    margin: 0;
+}   
+
+ul#graduation_planner_plan a {
+    margin-right: 5px;
+}
+
+
+ul#graduation_planner_plan > li ul > li {
+    font-size: x-small;
+    margin-bottom: 5px;
+    margin-left: 0;
+    margin-top: 5px;
+    min-height: 0;
+}
+#graduation_planner_plan div.field-item h3 {
+    font-size: x-small;
+    font-weight: bold;
+}
+ul#graduation_planner_plan > li ul {
+    margin-right: 0;
+    padding: 4px;
+}
+ul#graduation_planner_plan > li ul > li.connectedSortable {
+    margin-right: 18px;
+}
+ul#graduation_planner_plan > li {
+    margin: 0;
+}
+ul.graduation_planner_plan ul.unplanned li.draggable.unplanned {
+    margin-right: 27px;
+}
+ul#graduation_planner_plan > li ul.error {
+    margin: 0;
+    padding: 0;
+}
+ul#graduation_planner_plan > li ul.unplanned {
+    margin-top: 10px;
+    min-width: 918px;
+}
+ul#graduation_planner_plan > li ul.error > li {
+    margin: 0;
+}
+.empty-placeholder {
+    display: none;
+}
+div.item-list ul.error li {
+    background-color: rgba(0, 0, 0, 0);
+    border: 0 none;
+    margin: 0;
+    min-height: 10px;
+    padding: 0;
+    width: 175px;
+}
+div.item-list ul.error {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+.field-name-field-fake-title div.field-item, .field-name-field-fake-substituted-title div.field-item {
+    display: inline-block;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 145px;
+}
+.field.field-name-field-fake-title.field-type-text.field-label-hidden,
+.field.field-name-field-fake-substituted-title.field-type-text.field-label-hidden{
+    font-size: x-small;
+    font-weight: bold;
+    height: 16px;
+}
+.field-name-field-fake-substituted-title div.field-item{
+    text-decoration:line-through;
+    color:#BAB8B8;
+}
+.item-list ul.quarter li, .item-list ul.unplanned li {
+    background-color: #F4EDD7;
+    border: 1px solid #BAB8B8;
+    border-radius: 5px;
+    font-family: Myriad Pro;
+    font-size: small;
+    margin-bottom: 5px;
+    min-height: 70px;
+    padding: 6px;
+    text-transform: uppercase;
+    width: 190px;
+}
+.item-list ul.unplanned li {
+    float: left;
+    margin-right: 5px;
+}
+form input.form-submit.form-button-disabled, form input.form-submit.form-button-disabled:hover {
+    background: none repeat scroll 0 0 #D3D3D3;
+    cursor: auto;
+}
+div.total_credits {
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    font-size: medium;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+#content-messages {
+    font-size: x-small;
+}
+ul#graduation_planner_plan li {
+    list-style: none outside none;
+}

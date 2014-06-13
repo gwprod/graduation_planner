@@ -1,0 +1,473 @@
+<?php
+
+/**
+ * @file
+ * Installation file for graduation_planner_program.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function graduation_planner_program_field_schema($field) {
+  $schema = array();
+  switch ($field['type']) {
+    case 'course':
+      $schema['columns'] = array(
+        'course_id' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'ordered' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'place' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'unsigned' => TRUE,
+          'default' => 2,
+        ),
+      );
+      break;
+  }
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function graduation_planner_program_install() {
+  field_cache_clear();
+  $fields = array(
+    'fields' => array(
+      'field_required_course_list' => array(
+        'translatable' => '0',
+        'entity_types' => array(),
+        'settings' => array(),
+        'storage' => array(
+          'type' => 'field_sql_storage',
+          'settings' => array(),
+          'module' => 'field_sql_storage',
+          'active' => '1',
+          'details' => array(
+            'sql' => array(
+              'FIELD_LOAD_CURRENT' => array(
+                'field_data_field_required_course_list' => array(
+                  'course_id' => 'field_required_course_list_course_id',
+                  'ordered' => 'field_required_course_list_ordered',
+                ),
+              ),
+              'FIELD_LOAD_REVISION' => array(
+                'field_revision_field_required_course_list' => array(
+                  'course_id' => 'field_required_course_list_course_id',
+                  'ordered' => 'field_required_course_list_ordered',
+                ),
+              ),
+            ),
+          ),
+        ),
+        'foreign keys' => array(),
+        'indexes' => array(),
+        'field_name' => 'field_required_course_list',
+        'type' => 'course',
+        'module' => 'graduation_planner_program',
+        'active' => '1',
+        'locked' => '0',
+        'cardinality' => '-1',
+        'deleted' => '0',
+        'columns' => array(
+          'course_id' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+          ),
+          'ordered' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+        ),
+        'bundles' => array(
+          'graduation_planner_program' => array(
+            'graduation_planner_program',
+          ),
+          'node' => array(
+            'test',
+          ),
+        ),
+      ),
+      'field_elective_courses' => array(
+        'translatable' => '0',
+        'entity_types' => array(),
+        'settings' => array(),
+        'storage' => array(
+          'type' => 'field_sql_storage',
+          'settings' => array(),
+          'module' => 'field_sql_storage',
+          'active' => '1',
+          'details' => array(
+            'sql' => array(
+              'FIELD_LOAD_CURRENT' => array(
+                'field_data_field_elective_courses' => array(
+                  'course_id' => 'field_elective_courses_course_id',
+                  'ordered' => 'field_elective_courses_ordered',
+                ),
+              ),
+              'FIELD_LOAD_REVISION' => array(
+                'field_revision_field_elective_courses' => array(
+                  'course_id' => 'field_elective_courses_course_id',
+                  'ordered' => 'field_elective_courses_ordered',
+                ),
+              ),
+            ),
+          ),
+        ),
+        'foreign keys' => array(),
+        'indexes' => array(),
+        'field_name' => 'field_elective_courses',
+        'type' => 'course',
+        'module' => 'graduation_planner_program',
+        'active' => '1',
+        'locked' => '0',
+        'cardinality' => '-1',
+        'deleted' => '0',
+        'columns' => array(
+          'course_id' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+          ),
+          'ordered' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+        ),
+        'bundles' => array(
+          'graduation_planner_program' => array(
+            'graduation_planner_program',
+          ),
+        ),
+      ),
+    ),
+    'instances' => array(
+      'field_required_course_list' => array(
+        'label' => 'Required Course List',
+        'widget' => array(
+          'weight' => '-2',
+          'type' => 'course_widget',
+          'module' => 'graduation_planner_program',
+          'active' => 0,
+          'settings' => array(),
+        ),
+        'settings' => array(
+          'user_register_form' => FALSE,
+        ),
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'type' => 'graduation_planner_program_course_formatter',
+            'settings' => array(),
+            'module' => 'graduation_planner_program',
+            'weight' => 0,
+          ),
+          'list' => array(
+            'type' => 'hidden',
+            'label' => 'above',
+            'settings' => array(),
+            'weight' => 0,
+          ),
+        ),
+        'required' => 0,
+        'description' => '',
+        'default_value' => NULL,
+        'field_name' => 'field_required_course_list',
+        'entity_type' => 'graduation_planner_program',
+        'bundle' => 'graduation_planner_program',
+        'deleted' => '0',
+      ),
+      'field_elective_courses' => array(
+        'label' => 'Elective Courses',
+        'widget' => array(
+          'weight' => '-1',
+          'type' => 'course_widget',
+          'module' => 'graduation_planner_program',
+          'active' => 0,
+          'settings' => array(),
+        ),
+        'settings' => array(
+          'user_register_form' => FALSE,
+        ),
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'type' => 'graduation_planner_program_course_formatter',
+            'settings' => array(),
+            'module' => 'graduation_planner_program',
+            'weight' => 1,
+          ),
+          'list' => array(
+            'type' => 'hidden',
+            'label' => 'above',
+            'settings' => array(),
+            'weight' => 0,
+          ),
+        ),
+        'required' => 0,
+        'description' => '',
+        'default_value' => NULL,
+        'field_name' => 'field_elective_courses',
+        'entity_type' => 'graduation_planner_program',
+        'bundle' => 'graduation_planner_program',
+        'deleted' => '0',
+      ),
+    ),
+  );
+  foreach ($fields['fields'] as $field_name => $field) {
+    $field_info_field = field_info_field($field_name);
+    if (empty($field_info_field)) {
+      field_create_field($field);
+    }
+  }
+  foreach ($fields['instances'] as $field_name => $instance) {
+    $field_info_instance = field_info_instance('graduation_planner_class', $field_name, 'graduation_planner_class');
+    if (empty($field_info_instance)) {
+      field_create_instance($instance);
+    }
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function graduation_planner_program_schema() {
+  $schema = array();
+  $schema['graduation_planner_program'] = array(
+    'description' => 'Graduation planner program entity table',
+    'fields' => array(
+      'program_id' => array(
+        'description' => 'Primary key of the program entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The long name of this department',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'The description of this department',
+        'type' => 'text',
+      ),
+      'program_type' => array(
+        'description' => 'The type of this program.  Not the same as the bundle property',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_program',
+      ),
+      'department_id' => array(
+        'description' => 'The department this program belongs to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'elective_credits' => array(
+        'description' => 'The total number of elective credits',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'options' => array(
+        'description' => 'Options for the program',
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('program_id'),
+    'indexes' => array(
+      'revision' => array('revision_id'),
+      'department' => array('department_id'),
+    ),
+  );
+  $schema['graduation_planner_program_revision'] = array(
+    'description' => 'Graduation planner program entity table',
+    'fields' => array(
+      'program_id' => array(
+        'description' => 'Primary key of the program entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The long name of this department',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'The description of this department',
+        'type' => 'text',
+      ),
+      'program_type' => array(
+        'description' => 'The type of this program.  Not the same as the bundle property',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_program',
+      ),
+      'department_id' => array(
+        'description' => 'The department this program belongs to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'elective_credits' => array(
+        'description' => 'The total number of elective credits',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'options' => array(
+        'description' => 'Options for the program',
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'program' => array('program_id'),
+      'department' => array('department_id'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_program_update_7101() {
+  graduation_planner_program_updater();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_program_update_7102() {
+  graduation_planner_program_updater();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_program_update_7104() {
+  graduation_planner_program_updater();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_program_update_7103() {
+  $fields = field_info_fields();
+  foreach ($fields as $field_name => $field) {
+    if ($field['type'] == 'course' && $field['storage']['type'] == 'field_sql_storage') {
+      $schema = graduation_planner_program_field_schema($field);
+
+      foreach ($field['storage']['details']['sql'] as $type => $table_info) {
+        foreach ($table_info as $table_name => $columns) {
+          $column_name = _field_sql_storage_columnname($field_name, 'place');
+          if (!db_field_exists($table_name, $column_name)) {
+            db_add_field($table_name, $column_name, $schema['columns']['place']);
+            db_add_index($table_name, $column_name, array($column_name));
+          }
+        }
+      }
+    }
+  }
+  field_cache_clear();
+}
+
+/**
+ * Updater utility function.
+ */
+function graduation_planner_program_updater() {
+  $spec = graduation_planner_program_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}

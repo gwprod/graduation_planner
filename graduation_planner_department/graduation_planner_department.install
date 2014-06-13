@@ -1,0 +1,317 @@
+<?php
+
+/**
+ * @file
+ * Graduation Planner Department installation file.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function graduation_planner_department_schema() {
+  $schema = array();
+  $schema['graduation_planner_department'] = array(
+    'description' => 'Graduation planner department entity table',
+    'fields' => array(
+      'department_id' => array(
+        'description' => 'Primary key of the class entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'long_name' => array(
+        'description' => 'The long name of this department',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'short_name' => array(
+        'description' => 'The long name of this department',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'The description of this department',
+        'type' => 'text',
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_department',
+      ),
+    ),
+    'primary key' => array('department_id'),
+    'indexes' => array(
+      'revision' => array('revision_id'),
+    ),
+  );
+  $schema['graduation_planner_department_revision'] = array(
+    'description' => 'Graduation [lanner department entity table',
+    'fields' => array(
+      'department_id' => array(
+        'description' => 'Primary key of the class entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'long_name' => array(
+        'description' => 'The long name of this department',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'short_name' => array(
+        'description' => 'The long name of this department',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'The description of this department',
+        'type' => 'text',
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_department',
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'revision' => array('department_id'),
+    ),
+  );
+  $schema['graduation_planner_department_member'] = array(
+    'description' => 'Graduation planner department member table',
+    'fields' => array(
+      'department_id' => array(
+        'description' => 'Primary key of the class entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'User id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'approved' => array(
+        'description' => 'Is this member approved?',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'student' => array(
+        'description' => 'Is this member a student?',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'advisor' => array(
+        'description' => 'is this member an advisor?',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'faculty' => array(
+        'description' => 'is this member faculty?',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'administrator' => array(
+        'description' => 'is this member a department administrator?',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'staff' => array(
+        'description' => 'is this member department staff?',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'advisor_uid' => array(
+        'description' => 'The uid of the advisor assigned to the member.',
+        'type' => 'int',
+        'unsigned' => TRUE
+      )
+    ),
+    'primary key' => array('department_id', 'uid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function graduation_planner_department_install() {
+  $department_administrator_permissions = array(
+    'edit own department',
+    'delete own department',
+    'view own department',
+  );
+  $department_advisor_permissions = array(
+    'view own department',
+  );
+
+  _add_role('department_administrator');
+  _add_role('department_advisor');
+
+  _add_permissions('department_administrator', $department_administrator_permissions);
+  _add_permissions('department_advisor', $department_advisor_permissions);
+  db_query("
+INSERT INTO {graduation_planner_department} (`department_id`, `revision_id`, `long_name`, `short_name`, `description`, `created`, `changed`, `type`) VALUES
+(3, 3, 'Computer Science', 'CS', 'Computer Science', 1384670657, 1384670657, 'graduation_planner_department'),
+(4, 4, 'Mathematics', 'MATH', 'Mathematics', 1384671218, 1384671218, 'graduation_planner_department'),
+(5, 5, 'English', 'ENG', 'English', 1384671362, 1384671362, 'graduation_planner_department'),
+(6, 6, 'University', 'UNIV', 'University', 1384672581, 1384672581, 'graduation_planner_department'),
+(7, 7, 'General Education', 'GE', 'General Education', 1384672627, 1384672627, 'graduation_planner_department');");
+  db_query("
+INSERT INTO {graduation_planner_department_revision} (`department_id`, `revision_id`, `long_name`, `short_name`, `description`, `created`, `changed`, `type`) VALUES
+(3, 3, 'Computer Science', 'CS', 'Computer Science', 1384670657, 1384670657, 'graduation_planner_department'),
+(4, 4, 'Mathematics', 'MATH', 'Mathematics', 1384671218, 1384671218, 'graduation_planner_department'),
+(5, 5, 'English', 'ENG', 'English', 1384671362, 1384671362, 'graduation_planner_department'),
+(6, 6, 'University', 'UNIV', 'University', 1384672581, 1384672581, 'graduation_planner_department'),
+(7, 7, 'General Education', 'GE', 'General Education', 1384672627, 1384672627, 'graduation_planner_department');"
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function graduation_planner_department_uninstall() {
+  user_role_delete('department_administrator');
+  user_role_delete('department_advisor');
+}
+
+/**
+ * Add a new role.
+ *
+ * @param string $machine_name
+ *   The machine name of the role.
+ * @param int $weight
+ *   The optional weight.
+ */
+function _add_role($machine_name, $weight = 0) {
+  $role = new stdClass();
+  $role->name = $machine_name;
+  $role->weight = $weight;
+  user_role_save($role);
+}
+
+/**
+ * Adds permissions to a role.
+ *
+ * @param string $role_name
+ *   The name of the role.
+ * @param array $permissions
+ *   An array of permissions to grant.
+ */
+function _add_permissions($role_name, $permissions) {
+  $role = user_role_load_by_name($role_name);
+  user_role_grant_permissions($role->rid, $permissions);
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_department_update_7101() {
+  $spec = graduation_planner_department_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_department_update_7102() {
+  $spec = graduation_planner_department_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}

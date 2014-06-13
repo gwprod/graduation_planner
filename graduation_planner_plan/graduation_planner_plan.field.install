@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Graduation planner plan field install file.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function graduation_planner_plan_field_schema($field) {
+
+  $schema = array();
+  switch ($field['type']) {
+    case 'plan_courses':
+      $schema['columns'] = array(
+        'course_id' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'course_term' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'course_year' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'course_completed' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'course_locked' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'course_section' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'unsigned' => TRUE,
+          'default' => 0,
+        ),
+        'course_placed' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'unsigned' => TRUE,
+          'default' => 1,
+        ),
+        'course_data' => array(
+          'type' => 'text',
+          'not null' => TRUE,
+          'serialize' => TRUE,
+          'default' => ''
+        )
+      );
+      break;
+  }
+  return $schema;
+}

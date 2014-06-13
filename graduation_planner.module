@@ -1,0 +1,343 @@
+<?php
+
+/**
+ * @file
+ * The base module for Graduation Planner
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function graduation_planner_views_api() {
+  return array('api' => 3.0);
+}
+
+/**
+ * PDF Delivery Callback.
+ *
+ * @param array $callback_result
+ *   The content to be passed into the delivery callback
+ */
+function _print_pdf($callback_result) {
+
+  // Check that the dompdf library is available.
+
+  if (libraries_detect('dompdf') !== FALSE) {
+
+    // Load the dompdf library.
+
+    $dompdf_path = libraries_get_path('dompdf');
+    require_once $dompdf_path . '/dompdf_config.inc.php';
+
+    // Instantiate a new DOMPDF document.
+    $dompdf = new DOMPDF();
+
+    // If the callback result constainst the content index...
+
+    if (isset($callback_result['content'])) {
+
+      // Copy the content value to the content variable.
+      $content = $callback_result['content'];
+    }
+
+    // If it doesn't...
+    else {
+
+      // Directly render the content into the content variable.
+      $content = drupal_render($callback_result);
+    }
+
+    // Load the content into the dompdf object as html.
+
+    $dompdf->load_html($content);
+
+    // Set the paper of the dompdf document.
+
+    $dompdf->set_paper(DOMPDF_DEFAULT_PAPER_SIZE, 'portrait');
+
+    // Render the dompdf document as pdf.
+    $dompdf->render();
+
+    // Stop output buffering.
+
+    ob_end_clean();
+
+    // If the headers have not been sent.
+    if (!headers_sent()) {
+
+      // Stream the pdf to the client.
+      $dompdf->stream($callback_result['title'] . ".pdf", array('Attachment' => 0));
+    }
+
+    // Cease drupaling.
+
+    drupal_exit();
+  }
+
+  // If dompdf is not available...
+  else {
+
+    // Return the content without processing.
+
+    return $callback_result['content'];
+  }
+}
+
+/**
+ * Converts a single year number into an academic year.
+ *
+ * @param int $year
+ *   A single year number
+ *
+ * @return string
+ *   return the academic year (e.g 2013-2014)
+ */
+function format_year($year) {
+  return $year . ' - ' . ++$year;
+}
+
+/**
+ * Finds a quarter_id by name of quarter.
+ *
+ * @todo Refactor the quarters list
+ *
+ * @param string $quarter_name
+ *   The name of a quarter
+ *
+ * @return int
+ *   The quarter_id
+ */
+function graduation_planner_quarter_by_name($quarter_name) {
+
+  // Generate a list of quarters.
+  $quarters = array(
+    0 => 'fall',
+    1 => 'winter',
+    2 => 'spring',
+    3 => 'summer',
+  );
+
+  // If the quarter name is 'unplanned', we'll return 0.
+  if ($quarter_name == 'unplanned') {
+    return 0;
+  }
+
+  // Flip the array.
+  $quarters_flipped = array_flip($quarters);
+
+  // Return the index which corresponds to the name of the quarter.
+  return $quarters_flipped[$quarter_name];
+}
+
+/**
+ * Returns a list of formatted quarter names.
+ *
+ * @todo refactor
+ *
+ * @return array
+ *   An array of formatted quarter names.
+ */
+function graduation_planner_quarter_list() {
+  return array(
+    0 => t('Fall quarter'),
+    1 => t('Winter quarter'),
+    2 => t('Spring quarter'),
+    3 => t('Summer quarter'),
+  );
+}
+
+/**
+ * Gets the graduation_planner variables array, optionally allowing an update.
+ *
+ * @param array $update
+ *   Updated variable
+ *
+ * @return array
+ *   The variable data.
+ */
+function graduation_planner_variables($update = NULL) {
+
+  // If there is an updated data structure...
+  if (isset($update)) {
+
+    // Submit it to variable_set.
+    variable_set('graduation_planner', $update);
+  }
+
+  // Return the variables.
+  return variable_get('graduation_planner');
+}
+
+/**
+ * Formats a debugging message either as drupal_set_message or watchdog.
+ *
+ * @param string $message
+ *   The debug message to display or store in watchdog
+ */
+function graduation_planner_debug($message) {
+
+  // Retrieve the graduation_planner variables.
+
+  $variables = graduation_planner_variables();
+
+  // If debugging is enabled.
+  if (isset($variables['debug']['show_debug']) && $variables['debug']['show_debug'] == TRUE) {
+
+    // Choose a method.
+    switch ($variables['debug']['method']) {
+
+      // If watchdog is set, post message to the message list.
+      case 'watchdog':
+        watchdog('graduation_planner_debug', $message);
+        break;
+
+      // If drupal_set_message is set, display message with drupal_set_message.
+      case 'drupal_set_message':
+        drupal_set_message(check_plain($message));
+        break;
+    }
+  }
+}
+
+/**
+ * Blocks available from graduation_planner module.
+ *
+ * @return array
+ *   Return an array of blocks available in Structure > Blocks
+ */
+function graduation_planner_block_info() {
+  return array(
+    'user_login' => array(
+      'info' => t('Graduation Planner User Login Block'),
+    ),
+  );
+}
+
+/**
+ * Display a block.
+ *
+ * @param string $delta
+ *   The block name to display.
+ *
+ * @return array
+ *   A renderable array of block data.
+ */
+function graduation_planner_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'user_login':
+      $block['content'] = drupal_get_form('user_login');
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Override the default login destination.
+ *
+ * @param array $edit
+ *   Any changes that need to be made to the user at login.
+ * @param object $account
+ *   The account object of the logged in user
+ */
+function graduation_planner_user_login(&$edit, $account) {
+  drupal_goto('<front>');
+}
+
+/**
+ * Alters the login form to display helpful messages.
+ *
+ * @param array $form
+ *   The form array, passed by reference.
+ * @param array $form_state
+ *   The form state array, passed by reference.
+ * @param string $form_id
+ *   The form id of the form to be altered.
+ */
+function graduation_planner_form_user_login_alter(&$form, &$form_state, $form_id) {
+
+  // If the form id is for user_login...
+  if ($form_id == 'user_login') {
+
+    // Add a markup field to the top with some text.
+    $form['login_info'] = array(
+      '#markup' => t('To use Graduation Planner, enter your CWU Credentials below.'),
+      '#weight' => -1000,
+    );
+  }
+}
+
+function graduation_planner_user_load_by_name($string) {
+  if (module_exists('realname')) {
+    return realname_load_user($string);
+  }
+  return user_load_by_name($string);
+}
+
+function graduation_planner_user_autocomplete($string = '') {
+  if (module_exists('realname')) {
+    return _realname_autocomplete($string);
+  }
+  module_load_include('inc', 'user', 'pages');
+  return user_autocomplete($string);
+}
+
+function _realname_autocomplete($string = '') {
+
+  $matches = array();
+
+  if ($string) {
+    $query = db_select('users', 'u');
+    $query->leftJoin('realname', 'rn', 'u.uid = rn.uid');
+    $query->fields('u', array('uid'));
+    $query->condition('rn.realname', db_like($string) . '%', 'LIKE');
+    $query->range(0, 10);
+    $uids = $query->execute()->fetchCol();
+    $accounts = user_load_multiple($uids);
+
+    foreach ($accounts as $account) {
+      $matches[format_username($account)] = format_username($account);
+    }
+  }
+
+  drupal_json_output($matches);
+}
+
+function graduation_planner_menu() {
+  $items['graduation_planner/user/autocomplete'] = array(
+    'page callback' => 'graduation_planner_user_autocomplete',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/graduation_planner'] = array(
+    'title' => 'Graduation Planner',
+    'description' => 'This is the parent item',
+    'position' => 'left',
+    'weight' => -100,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['admin/config/graduation_planner/basic'] = array(
+    'title' => 'Configuration',
+    'description' => 'Edit Graduation Planner Global Settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_admin_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer graduation planner'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'graduation_planner.admin.inc',
+  );
+  return $items;
+}
+function graduation_planner_permission()
+{
+  return array(
+    'administer graduation planner' => array(
+      'title' => t('Administer Graduation Planner'),
+      'description' => t('administer graduation planner'),
+    ),
+  );
+}

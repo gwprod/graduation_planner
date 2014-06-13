@@ -1,0 +1,246 @@
+<?php
+
+/**
+ * @file
+ * Test case for graduation_planner_class
+ */
+
+/**
+ * GraduationPlannerClassWebTestCase DrupalWebTestCase
+ */
+class GraduationPlannerClassWebTestCase extends DrupalWebTestCase {
+
+  /**
+   * Info Function.
+   *
+   * @return array
+   *   An array for consumption by Simpletest module
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Web Tests Graduation Planner Class module',
+      'description' => 'Tests for Graduation Planner Class module.',
+      'group' => 'GraduationPlanner',
+    );
+  }
+
+  /**
+   * Setup function.
+   */
+  public function setUp() {
+    parent::setUp(array('simpletest', 'graduation_planner_class'));
+  }
+
+  /**
+   * Teardown function.
+   */
+  public function tearDown() {
+    parent::tearDown();
+  }
+
+  /**
+   * Create class test case.
+   */
+  public function testCreateClass() {
+    $account = $this->drupalCreateUser(
+        array(
+          'create class',
+          'list classes',
+          'view class',
+        )
+    );
+    $this->drupalLogin($account);
+
+    $this->drupalGet('class');
+    $this->assertNoText(t('Access denied'));
+    $this->assertLink('Class list');
+    $this->drupalGet('class/list');
+    $this->assertNoText(t('Access denied'));
+    $this->assertLink('New class');
+    $this->drupalGet('class/new');
+    $this->assertNoText(t('Access denied'));
+    $this->assertFieldByName('class_department');
+    $this->assertFieldByName('class_number');
+    $this->assertFieldByName('title');
+    $this->assertFieldByName('description');
+    $this->assertFieldByName('class_units');
+    $this->assertFieldByName('class_required');
+    $this->assertFieldByName('class_is_gen_ed');
+    $this->assertFieldByName('field_quarters_available[und][0][fall_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][winter_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][spring_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][summer_quarter]');
+    $class = array(
+      'class_department' => 3,
+      'class_number' => '110',
+      'title' => 'Java 1',
+      'description' => 'Java 1',
+      'class_units' => '4',
+      'class_required' => TRUE,
+      'class_is_gen_ed' => FALSE,
+      'field_quarters_available[und][0][fall_quarter]' => TRUE,
+      'field_quarters_available[und][0][winter_quarter]' => TRUE,
+      'field_quarters_available[und][0][spring_quarter]' => TRUE,
+    );
+    $this->drupalPost('class/new', $class, 'Create class');
+    $this->assertText(t('You have successfully saved the class @class', array('@class' => 'CS 110: Java 1')));
+    $this->assertText('CS 110: Java 1');
+    $this->assertText('Units:');
+    $this->drupalGet('class/list');
+    $this->assertFieldByName('filters[search_term]');
+    $search = array(
+      'filters[search_term]' => 'CS 110',
+    );
+    $this->drupalPost('class/list', $search, 'Search');
+    $this->assertLink('CS 110: Java 1');
+  }
+
+  /**
+   * Create and edit class test case.
+   */
+  public function testCreateAndEditClass() {
+    $account = $this->drupalCreateUser(
+        array(
+          'create class',
+          'list classes',
+          'view class',
+          'edit any class',
+        )
+    );
+    $this->drupalLogin($account);
+    $this->drupalGet('class');
+    $this->assertNoText(t('Access denied'));
+    $this->assertLink('Class list');
+    $this->drupalGet('class/list');
+    $this->assertNoText(t('Access denied'));
+    $this->assertLink('New class');
+    $this->drupalGet('class/new');
+    $this->assertNoText(t('Access denied'));
+    $this->assertFieldByName('class_department');
+    $this->assertFieldByName('class_number');
+    $this->assertFieldByName('title');
+    $this->assertFieldByName('description');
+    $this->assertFieldByName('class_units');
+    $this->assertFieldByName('class_required');
+    $this->assertFieldByName('class_is_gen_ed');
+    $this->assertFieldByName('field_quarters_available[und][0][fall_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][winter_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][spring_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][summer_quarter]');
+    $class = array(
+      'class_department' => 3,
+      'class_number' => '110',
+      'title' => 'Java 1',
+      'description' => 'Java 1',
+      'class_units' => '4',
+      'class_required' => TRUE,
+      'class_is_gen_ed' => FALSE,
+      'field_quarters_available[und][0][fall_quarter]' => TRUE,
+      'field_quarters_available[und][0][winter_quarter]' => TRUE,
+      'field_quarters_available[und][0][spring_quarter]' => TRUE,
+    );
+
+    $this->drupalPost('class/new', $class, 'Create class');
+    $this->assertText(t('You have successfully saved the class @class', array('@class' => 'CS 110: Java 1')));
+    $this->assertText('CS 110: Java 1');
+    $this->assertText('Units:');
+    $this->assertLink('Edit class');
+    $this->drupalGet('class/list');
+    $this->assertFieldByName('filters[search_term]');
+    $search = array(
+      'filters[search_term]' => 'CS 110',
+    );
+    $this->drupalPost('class/list', $search, 'Search');
+    $this->assertLink('CS 110: Java 1');
+    $this->clickLink('CS 110: Java 1');
+    $this->assertLink('Edit class');
+    $this->clickLink('Edit class');
+    $this->assertFieldByName('class_department', 3);
+    $this->assertFieldByName('class_number', 110);
+    $this->assertFieldByName('title', 'Java 1');
+    $this->assertFieldByName('description', 'Java 1');
+    $this->assertFieldByName('class_units', '4');
+    $this->assertFieldByName('class_required', TRUE);
+    $this->assertFieldByName('class_is_gen_ed', FALSE);
+    $this->assertFieldByName('field_quarters_available[und][0][fall_quarter]', TRUE);
+    $this->assertFieldByName('field_quarters_available[und][0][winter_quarter]', TRUE);
+    $this->assertFieldByName('field_quarters_available[und][0][spring_quarter]', TRUE);
+    $this->assertFieldByName('field_quarters_available[und][0][summer_quarter]', FALSE);
+  }
+
+  /**
+   * Create and delete class test case.
+   */
+  public function testCreateAndDeleteClass() {
+    $account = $this->drupalCreateUser(
+        array(
+          'create class',
+          'edit any class',
+          'edit own class',
+          'delete any class',
+          'delete own class',
+          'list classes',
+          'view class',
+        )
+    );
+
+    $this->drupalLogin($account);
+
+    $this->drupalGet('class');
+    $this->assertNoText(t('Access denied'));
+    $this->assertLink('Class list');
+    $this->drupalGet('class/list');
+    $this->assertNoText(t('Access denied'));
+    $this->assertLink('New class');
+    $this->drupalGet('class/new');
+    $this->assertNoText(t('Access denied'));
+    $this->assertFieldByName('class_department');
+    $this->assertFieldByName('class_number');
+    $this->assertFieldByName('title');
+    $this->assertFieldByName('description');
+    $this->assertFieldByName('class_units');
+    $this->assertFieldByName('class_required');
+    $this->assertFieldByName('class_is_gen_ed');
+    $this->assertFieldByName('field_quarters_available[und][0][fall_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][winter_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][spring_quarter]');
+    $this->assertFieldByName('field_quarters_available[und][0][summer_quarter]');
+    $class = array(
+      'class_department' => 3,
+      'class_number' => '110',
+      'title' => 'Java 1',
+      'description' => 'Java 1',
+      'class_units' => '4',
+      'class_required' => TRUE,
+      'class_is_gen_ed' => FALSE,
+      'field_quarters_available[und][0][fall_quarter]' => TRUE,
+      'field_quarters_available[und][0][winter_quarter]' => TRUE,
+      'field_quarters_available[und][0][spring_quarter]' => TRUE,
+    );
+    $this->drupalPost('class/new', $class, 'Create class');
+    $this->assertText(t('You have successfully Saved the class @class', array('@class' => 'CS 110: Java 1')));
+    $this->assertText('CS 110: Java 1');
+    $this->assertText('Units:');
+    $this->drupalGet('class/list');
+    $this->assertFieldByName('filters[search_term]');
+    $search = array(
+      'filters[search_term]' => 'CS 110',
+    );
+    $this->drupalPost('class/list', $search, 'Search');
+    $this->assertLink('CS 110: Java 1');
+    $this->clickLink('CS 110: Java 1');
+    $this->assertLink('Delete class');
+    $this->clickLink('Delete class');
+  }
+
+  /**
+   * Anonymous access test case.
+   */
+  public function testAnonymousAccess() {
+    $this->drupalGet('class');
+    $this->assertText(t('Access denied'));
+    $this->drupalGet('class/new');
+    $this->assertText(t('Access denied'));
+  }
+
+}

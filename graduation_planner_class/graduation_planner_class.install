@@ -1,0 +1,607 @@
+<?php
+
+/**
+ * @file
+ * Install file for graduation_planner_class
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function graduation_planner_class_field_schema($field) {
+  $schema = array();
+  switch ($field['type']) {
+    case 'course_requirement':
+      $schema['columns'] = array(
+        'course_id' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'co_requisite' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      );
+      break;
+
+    case 'quarters_available':
+      $schema['columns'] = array(
+        'fall_quarter' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'winter_quarter' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'spring_quarter' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'summer_quarter' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      );
+      break;
+  }
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function graduation_planner_class_install() {
+  field_cache_clear();
+  $fields = array(
+    'fields' => array(
+      'field_course_requirement' => array(
+        'translatable' => '0',
+        'entity_types' => array(),
+        'settings' => array(),
+        'storage' => array(
+          'type' => 'field_sql_storage',
+          'settings' => array(),
+          'module' => 'field_sql_storage',
+          'active' => '1',
+          'details' => array(
+            'sql' => array(
+              'FIELD_LOAD_CURRENT' => array(
+                'field_data_field_course_requirement' => array(
+                  'course_id' => 'field_course_requirement_course_id',
+                  'co_requisite' => 'field_course_requirement_co_requisite',
+                ),
+              ),
+              'FIELD_LOAD_REVISION' => array(
+                'field_revision_field_course_requirement' => array(
+                  'course_id' => 'field_course_requirement_course_id',
+                  'co_requisite' => 'field_course_requirement_co_requisite',
+                ),
+              ),
+            ),
+          ),
+        ),
+        'foreign keys' => array(),
+        'indexes' => array(),
+        'field_name' => 'field_course_requirement',
+        'type' => 'course_requirement',
+        'module' => 'graduation_planner_class',
+        'active' => '1',
+        'locked' => '1',
+        'cardinality' => '-1',
+        'deleted' => '0',
+        'columns' => array(
+          'course_id' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+          ),
+          'co_requisite' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+        ),
+        'bundles' => array(
+          'graduation_planner_class' => array(
+            'graduation_planner_class',
+          ),
+        ),
+      ),
+      'field_quarters_available' => array(
+        'translatable' => '0',
+        'entity_types' => array(),
+        'settings' => array(),
+        'storage' => array(
+          'type' => 'field_sql_storage',
+          'settings' => array(),
+          'module' => 'field_sql_storage',
+          'active' => '1',
+          'details' => array(
+            'sql' => array(
+              'FIELD_LOAD_CURRENT' => array(
+                'field_data_field_quarters_available' => array(
+                  'fall_quarter' => 'field_quarters_available_fall_quarter',
+                  'winter_quarter' => 'field_quarters_available_winter_quarter',
+                  'spring_quarter' => 'field_quarters_available_spring_quarter',
+                  'summer_quarter' => 'field_quarters_available_summer_quarter',
+                ),
+              ),
+              'FIELD_LOAD_REVISION' => array(
+                'field_revision_field_quarters_available' => array(
+                  'fall_quarter' => 'field_quarters_available_fall_quarter',
+                  'winter_quarter' => 'field_quarters_available_winter_quarter',
+                  'spring_quarter' => 'field_quarters_available_spring_quarter',
+                  'summer_quarter' => 'field_quarters_available_summer_quarter',
+                ),
+              ),
+            ),
+          ),
+        ),
+        'foreign keys' => array(),
+        'indexes' => array(),
+        'field_name' => 'field_quarters_available',
+        'type' => 'quarters_available',
+        'module' => 'graduation_planner_class',
+        'active' => '1',
+        'locked' => '1',
+        'cardinality' => '1',
+        'deleted' => '0',
+        'columns' => array(
+          'fall_quarter' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+          'winter_quarter' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+          'spring_quarter' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+          'summer_quarter' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+          ),
+        ),
+        'bundles' => array(
+          'graduation_planner_class' => array(
+            'graduation_planner_class',
+          ),
+        ),
+      ),
+    ),
+    'instances' => array(
+      'field_course_requirement' => array(
+        'label' => 'Course Requirement',
+        'widget' => array(
+          'weight' => '1',
+          'type' => 'course_requirement_widget',
+          'module' => 'graduation_planner_class',
+          'active' => 0,
+          'settings' => array(),
+        ),
+        'settings' => array(
+          'user_register_form' => FALSE,
+        ),
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'type' => 'graduation_planner_class_course_requirement_formatter',
+            'settings' => array(),
+            'module' => 'graduation_planner_class',
+            'weight' => 0,
+          ),
+          'list' => array(
+            'label' => 'above',
+            'type' => 'hidden',
+            'weight' => '8',
+            'settings' => array(),
+          ),
+        ),
+        'required' => 1,
+        'description' => '',
+        'default_value' => NULL,
+        'field_name' => 'field_course_requirement',
+        'entity_type' => 'graduation_planner_class',
+        'bundle' => 'graduation_planner_class',
+        'deleted' => '0',
+      ),
+      'field_quarters_available' => array(
+        'label' => 'Quarters Available',
+        'widget' => array(
+          'weight' => '2',
+          'type' => 'quarters_available_widget',
+          'module' => 'graduation_planner_class',
+          'active' => 0,
+          'settings' => array(),
+        ),
+        'settings' => array(
+          'user_register_form' => FALSE,
+        ),
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'type' => 'graduation_planner_class_quarters_available_formatter',
+            'settings' => array(),
+            'module' => 'graduation_planner_class',
+            'weight' => 1,
+          ),
+          'list' => array(
+            'label' => 'above',
+            'type' => 'hidden',
+            'weight' => '7',
+            'settings' => array(),
+          ),
+        ),
+        'required' => 0,
+        'description' => '',
+        'default_value' => array(
+          array(
+            'fall_quarter' => 0,
+            'winter_quarter' => 0,
+            'spring_quarter' => 0,
+            'summer_quarter' => 0,
+          ),
+        ),
+        'field_name' => 'field_quarters_available',
+        'entity_type' => 'graduation_planner_class',
+        'bundle' => 'graduation_planner_class',
+        'deleted' => '0',
+      ),
+    ),
+  );
+  foreach ($fields['fields'] as $field_name => $field) {
+    $field_info_field = field_info_field($field_name);
+    if (empty($field_info_field)) {
+      field_create_field($field);
+    }
+  }
+  foreach ($fields['instances'] as $field_name => $instance) {
+    $field_info_instance = field_info_instance('graduation_planner_class', $field_name, 'graduation_planner_class');
+    if (empty($field_info_instance)) {
+      field_create_instance($instance);
+    }
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function graduation_planner_class_schema() {
+  $schema = array();
+  $schema['graduation_planner_class'] = array(
+    'description' => 'Graduation planner class entity table',
+    'fields' => array(
+      'class_id' => array(
+        'description' => 'Primary key of the class entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The name of this class (Algorithm Analysis, etc)',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'Class Name',
+      ),
+      'description' => array(
+        'description' => 'The description of this class',
+        'type' => 'text',
+      ),
+      'class_department' => array(
+        'description' => 'The department this class belongs to',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
+      ),
+      'class_number' => array(
+        'description' => 'The course number for this class',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => '101',
+      ),
+      'class_units' => array(
+        'description' => 'The number of units this class has (credits)',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 5,
+      ),
+      'class_required' => array(
+        'description' => 'Is this class required?',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
+      ),
+      'class_standing' => array(
+        'description' => 'Class standing Required',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'class_is_gen_ed' => array(
+        'description' => 'This class is a general education (AA) class.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_class',
+      ),
+      'generic' => array(
+        'description' => 'Is this class a generic class?',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('class_id'),
+    'indexes' => array(
+      'revision' => array('revision_id'),
+    ),
+  );
+  $schema['graduation_planner_class_revision'] = array(
+    'description' => 'Graduation planner class entity table',
+    'fields' => array(
+      'class_id' => array(
+        'description' => 'Class id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The name of this class (Algorithm Analysis, etc)',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'Class Name',
+      ),
+      'description' => array(
+        'description' => 'The description of this class',
+        'type' => 'text',
+      ),
+      'class_department' => array(
+        'description' => 'The department this class belongs to',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
+      ),
+      'class_number' => array(
+        'description' => 'The course number for this class',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => '101',
+      ),
+      'class_units' => array(
+        'description' => 'The number of units this class has (credits)',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 5,
+      ),
+      'class_required' => array(
+        'description' => 'Is this class required?',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
+      ),
+      'class_standing' => array(
+        'description' => 'Class standing Required',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'class_is_gen_ed' => array(
+        'description' => 'This class is a general education (AA) class.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_class',
+      ),
+      'generic' => array(
+        'description' => 'Is this class a generic class?',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'class' => array('class_id'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_class_update_7101() {
+  $spec = graduation_planner_class_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_class_update_7102() {
+  $spec = graduation_planner_class_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_class_update_7103() {
+  $spec = graduation_planner_class_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_class_update_7104() {
+  $spec = graduation_planner_class_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_class_update_7105() {
+  $spec = graduation_planner_class_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}

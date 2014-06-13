@@ -1,0 +1,459 @@
+<?php
+
+/**
+ * @file
+ * Install file for graduation_planner_plan.module.
+ */
+
+// Include field install file.
+require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_plan') . "/graduation_planner_plan.field.install";
+
+/**
+ * Implements hook_install().
+ */
+function graduation_planner_plan_install() {
+  field_cache_clear();
+  field_create_field(array(
+    'translatable' => '0',
+    'entity_types' => array(),
+    'settings' => array(),
+    'storage' => array(
+      'type' => 'field_sql_storage',
+      'settings' => array(),
+      'module' => 'field_sql_storage',
+      'active' => '1',
+      'details' => array(
+        'sql' => array(
+          'FIELD_LOAD_CURRENT' => array(
+            'field_data_field_plan_courses' => array(
+              'course_id' => 'field_plan_courses_course_id',
+              'course_term' => 'field_plan_courses_course_term',
+              'course_year' => 'field_plan_courses_course_year',
+              'course_completed' => 'field_plan_courses_course_completed',
+              'course_locked' => 'field_plan_courses_course_locked',
+            ),
+          ),
+          'FIELD_LOAD_REVISION' => array(
+            'field_revision_field_plan_courses' => array(
+              'course_id' => 'field_plan_courses_course_id',
+              'course_term' => 'field_plan_courses_course_term',
+              'course_year' => 'field_plan_courses_course_year',
+              'course_completed' => 'field_plan_courses_course_completed',
+              'course_locked' => 'field_plan_courses_course_locked',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'foreign keys' => array(),
+    'indexes' => array(),
+    'field_name' => 'field_plan_courses',
+    'type' => 'plan_courses',
+    'module' => 'graduation_planner_plan',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '-1',
+    'deleted' => '0',
+    'columns' => array(
+      'course_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'course_term' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_year' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_completed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_locked' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'bundles' => array(
+      'graduation_planner_plan' => array(
+        'graduation_planner_plan',
+      ),
+    ),
+  ));
+  field_create_instance(array(
+    'label' => 'Plan Courses',
+    'widget' => array(
+      'weight' => '1',
+      'type' => 'plan_courses_widget',
+      'module' => 'graduation_planner_plan',
+      'active' => 0,
+      'settings' => array(),
+    ),
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'graduation_planner_plan_plan_courses_formatter',
+        'weight' => '0',
+        'settings' => array(),
+        'module' => 'graduation_planner_plan',
+      ),
+      'list' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_plan_courses',
+    'entity_type' => 'graduation_planner_plan',
+    'bundle' => 'graduation_planner_plan',
+    'deleted' => '0',
+  ));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function graduation_planner_plan_schema() {
+  $schema = array();
+  $schema['graduation_planner_plan'] = array(
+    'description' => 'Graduation planner plan entity table',
+    'fields' => array(
+      'plan_id' => array(
+        'description' => 'Primary key of the plan entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'The owner of the plan',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed_by' => array(
+        'description' => 'Plan last changed by',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_plan',
+      ),
+      'department_id' => array(
+        'description' => 'The department this plan belongs to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'plan_base_year' => array(
+        'description' => 'The base year for this plan.  All plan data is based upon it.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'plan_data' => array(
+        'description' => 'Plan options.',
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'The current status of the plan (0 for deleted, 1 for pending, 2 for active',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
+      ),
+      'approved_uid' => array(
+        'description' => 'The advisor who approved this plan, if any.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+      ),
+    ),
+    'primary key' => array('plan_id'),
+    'indexes' => array(
+      'revision' => array('revision_id'),
+      'department' => array('plan_id'),
+    ),
+  );
+  $schema['graduation_planner_plan_revision'] = array(
+    'description' => 'Graduation planner plan entity table',
+    'fields' => array(
+      'plan_id' => array(
+        'description' => 'Primary key of the plan entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The pwner of the plan',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed_by' => array(
+        'description' => 'Plan last changed by',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_plan',
+      ),
+      'department_id' => array(
+        'description' => 'The department this plan belongs to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'plan_base_year' => array(
+        'description' => 'The base year for this plan.  All plan data is based upon it.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'plan_data' => array(
+        'description' => 'Plan options',
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'The current status of the plan (0 for deleted, 1 for pending, 2 for active',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
+      ),
+      'approved_uid' => array(
+        'description' => 'The advisor who approved this plan, if any.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'plan' => array('plan_id'),
+    ),
+  );
+  $schema['graduation_planner_plan_message'] = array(
+    'description' => 'Graduation planner plan message table',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'The user this message is directed to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'year' => array(
+        'description' => 'The year the section is offered',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quarter' => array(
+        'description' => 'The quarter this section or class is offered',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'class_id' => array(
+        'description' => 'Primary key of the class entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'section_id' => array(
+        'description' => 'Primary key of the class section entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'timestamp' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'sent' => array(
+        'description' => 'Message has been sent. (0 for False, 1 for True) ',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'uid',
+      'year',
+      'quarter',
+      'class_id',
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_plan_update_7101() {
+  $spec = graduation_planner_plan_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_plan_update_7102() {
+  $fields = field_info_fields();
+  foreach ($fields as $field_name => $field) {
+    if ($field['type'] == 'plan_courses' && $field['storage']['type'] == 'field_sql_storage') {
+      $schema = graduation_planner_plan_field_schema($field);
+
+      foreach ($field['storage']['details']['sql'] as $type => $table_info) {
+        foreach ($table_info as $table_name => $columns) {
+          $column_name = _field_sql_storage_columnname($field_name, 'course_section');
+          if (!db_field_exists($table_name, $column_name)) {
+            db_add_field($table_name, $column_name, $schema['columns']['course_section']);
+            db_add_index($table_name, $column_name, array($column_name));
+          }
+        }
+      }
+    }
+  }
+  field_cache_clear();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_plan_update_7103() {
+  $fields = field_info_fields();
+  foreach ($fields as $field_name => $field) {
+    if ($field['type'] == 'plan_courses' && $field['storage']['type'] == 'field_sql_storage') {
+      $schema = graduation_planner_plan_field_schema($field);
+
+      foreach ($field['storage']['details']['sql'] as $type => $table_info) {
+        foreach ($table_info as $table_name => $columns) {
+          $column_name = _field_sql_storage_columnname($field_name, 'course_placed');
+          if (!db_field_exists($table_name, $column_name)) {
+            db_add_field($table_name, $column_name, $schema['columns']['course_placed']);
+            db_add_index($table_name, $column_name, array($column_name));
+          }
+        }
+      }
+    }
+  }
+  field_cache_clear();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function graduation_planner_plan_update_7104() {
+  $spec = graduation_planner_plan_schema();
+  foreach ($spec as $table_key => $table_info) {
+    if (db_table_exists($table_key)) {
+      foreach ($table_info['fields'] as $field_key => $field) {
+        if (!db_field_exists($table_key, $field_key)) {
+          db_add_field($table_key, $field_key, $field);
+        }
+        else {
+          db_change_field($table_key, $field_key, $field_key, $field);
+        }
+      }
+    }
+    else {
+      db_create_table($table_key, $table_info);
+    }
+  }
+}

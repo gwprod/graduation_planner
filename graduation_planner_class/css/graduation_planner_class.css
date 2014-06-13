@@ -1,0 +1,30 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Nov 25, 2013, 1:22:16 AM
+    Author     : mltbooks
+*/
+
+div.graduation_planner_class_list_form div.form-type-textfield {
+    display: block;
+}
+div.graduation_planner_class_list_form div {
+    display: inline-block;
+    height: 60px;
+    margin: 0 20px 0 0;
+    min-width: 150px;
+    padding: 0;
+}
+div.graduation_planner_class_list_form select {
+    min-width: 100%;
+}
+.field-name-field-fake-title div.field-item {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 190px;
+}

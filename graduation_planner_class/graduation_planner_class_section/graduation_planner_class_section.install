@@ -1,0 +1,192 @@
+<?php
+
+/**
+ * @file
+ * Install file for graduation_planner_class_section
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function graduation_planner_class_section_schema() {
+  $schema = array();
+
+  // Base Table.
+  $schema['graduation_planner_class_section'] = array(
+    'description' => 'Graduation planner class section entity table',
+    'fields' => array(
+      'section_id' => array(
+        'description' => 'Primary key of the class section entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'class_id' => array(
+        'description' => 'Primary key of the class section entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'class_section' => array(
+        'description' => 'Section number of this class',
+        'type' => 'varchar',
+        'length' => 3,
+        'not null' => TRUE,
+        'default' => 001,
+      ),
+      'quarters' => array(
+        'description' => 'The quarter this section is offered',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'year' => array(
+        'description' => 'The year the section is offered',
+        'type' => 'varchar',
+        'length' => 4,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'time_start' => array(
+        'description' => 'The UNIX time when this class starts',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'time_end' => array(
+        'description' => 'The UNIX time when this class ends',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_class_section',
+      ),
+      'data' => array(
+        'description' => 'The class sections permission codes',
+        'type' => 'text',
+        'serialized' => TRUE,
+      ),
+    ),
+    'primary key' => array('section_id'),
+    'indexes' => array(
+      'revision' => array('revision_id'),
+    ),
+  );
+  $schema['graduation_planner_class_section_revision'] = array(
+    'description' => 'Graduation planner class section entity table',
+    'fields' => array(
+      'section_id' => array(
+        'description' => 'Primary key of the class section entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'class_id' => array(
+        'description' => 'Primary key of the class section entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'Revision id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'class_section' => array(
+        'description' => 'Section number of this class',
+        'type' => 'varchar',
+        'length' => 3,
+        'not null' => TRUE,
+        'default' => 001,
+      ),
+      'quarters' => array(
+        'description' => 'The quarter this section is offered',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'year' => array(
+        'description' => 'The year the section is offered',
+        'type' => 'varchar',
+        'length' => 4,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'time_start' => array(
+        'description' => 'The UNIX time when this class starts',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'time_end' => array(
+        'description' => 'The UNIX time when this class ends',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The UNIX time when this entity was created',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The UNIX time when this entity was last changed',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The bundle of this entity',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'graduation_planner_class_section',
+      ),
+      'data' => array(
+        'description' => 'The class sections permission codes',
+        'type' => 'text',
+        'serialized' => TRUE,
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'section_id' => array('section_id'),
+    ),
+  );
+  return $schema;
+}

@@ -1,0 +1,10 @@
+name = Graduation Planner Class Entity
+description = The Class Entity for graduation planner
+package = Graduation Planner
+core = 7.x
+dependencies[] = simpletest
+dependencies[] = entity
+dependencies[] = graduation_planner
+dependencies[] = graduation_planner_department
+stylesheets[all][] = css/graduation_planner_class.css
+files[] = graduation_planner_class.test

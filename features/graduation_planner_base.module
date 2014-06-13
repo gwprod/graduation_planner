@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Graduation Planner Base feature.
+ */
+
+include_once 'graduation_planner_base.features.inc';

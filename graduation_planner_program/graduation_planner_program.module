@@ -1,0 +1,885 @@
+<?php
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_program') . "/graduation_planner_program.field.inc";
+
+class GraduationPlannerProgram extends Entity {
+
+  protected function defaultLabel() {
+    return $this->title;
+  }
+
+  protected function defaultUri() {
+    return array('path' => 'department/' . $this->department_id . '/program/' . $this->identifier());
+  }
+
+}
+
+class GraduationPlannerProgramController extends EntityAPIController {
+
+  public function create(array $values = array()) {
+
+    $values += array(
+      'title' => '',
+      'description' => '',
+      'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
+      'type' => 'graduation_planner_program'
+    );
+    return parent::create($values);
+  }
+
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+
+    $display_info = field_extra_fields_get_display('graduation_planner_program', 'graduation_planner_program', $view_mode);
+
+    $content['title'] = array(
+      '#theme' => 'field',
+      '#weight' => $display_info['title']['weight'],
+      '#title' => t('Program Name'),
+      '#access' => isset($display_info['title']['visible']) ? $display_info['title']['visible'] : 0,
+      '#label_display' => 'above',
+      '#view_mode' => $view_mode,
+      '#language' => LANGUAGE_NONE,
+      '#field_name' => 'field_fake_title',
+      '#field_type' => 'text',
+      '#entity_type' => 'graduation_planner_program',
+      '#bundle' => $entity->type,
+      '#items' => array(array('value' => graduation_planner_program_title($entity))),
+      '#formatter' => 'text_default',
+      0 => array('#markup' => check_plain(graduation_planner_program_title($entity)))
+    );
+    $content['description'] = array(
+      '#theme' => 'field',
+      '#weight' => $display_info['description']['weight'],
+      '#title' => t('Program Description'),
+      '#access' => isset($display_info['description']['visible']) ? $display_info['description']['visible'] : 0,
+      '#label_display' => 'above',
+      '#view_mode' => $view_mode,
+      '#language' => LANGUAGE_NONE,
+      '#field_name' => 'field_fake_description',
+      '#field_type' => 'text',
+      '#entity_type' => 'graduation_planner_program',
+      '#bundle' => $entity->type,
+      '#items' => array(array('value' => $entity->description)),
+      '#formatter' => 'text_default',
+      0 => array('#markup' => check_plain($entity->description))
+    );
+
+    return parent::buildContent($entity, $view_mode, $langcode, $content);
+  }
+
+}
+
+function graduation_planner_program_entity_info() {
+  $entities = array();
+  //  Entity information
+  $entities['graduation_planner_program'] = array(
+    'label' => t('Graduation Planner - Program'),
+    'entity class' => 'GraduationPlannerProgram',
+    'controller class' => 'GraduationPlannerProgramController',
+    'base table' => 'graduation_planner_program',
+    'revision table' => 'graduation_planner_program_revision',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'program_id',
+      'bundle' => 'type',
+      'revision' => 'revision_id'
+    ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(
+      'graduation_planner_program' => array(
+        'label' => t('Graduation Planner - Program'),
+        'admin' => array(
+          'path' => 'admin/structure/graduation_planner_program/manage',
+          'access arguments' => array('administer graduation_planner_program entities'),
+        ),
+      ),
+    ),
+    'load hook' => 'graduation_planner_program_load',
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Default'),
+        'custom settings' => FALSE,
+      ),
+      'list' => array(
+        'label' => t('List Item'),
+        'custom settings' => TRUE,
+      ),
+    ),
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'graduation_planner_program_uri',
+    'module' => 'graduation_planner_program',
+    'access callback' => 'graduation_planner_program_access',
+  );
+  return $entities;
+}
+
+function graduation_planner_program_uri($program) {
+  return array('path' => 'department/' . $program->department_id . '/program/' . $program->identifier());
+}
+
+function graduation_planner_program_access($permission, $entity = null) {
+  return user_access($permission);
+}
+
+function graduation_planner_program_load($program_id, $reset = FALSE) {
+  $program_ids = (isset($program_id) ? array($program_id) : array());
+  $program = graduation_planner_program_load_multiple($program_ids, array(), $reset);
+  return $program ? reset($program) : FALSE;
+}
+
+function graduation_planner_program_load_multiple($program_ids = array(), $conditions = array(), $reset = false) {
+  return entity_load('graduation_planner_program', $program_ids, $conditions, $reset);
+}
+
+function graduation_planner_program_view($program, $view_mode = 'full') {
+  $program->content = array();
+  $program->content = entity_get_controller($program->type)->buildContent($program, $view_mode);
+  $program->content += field_attach_view('graduation_planner_program', $program, $view_mode);
+
+  $program->content += array(
+    '#theme' => 'graduation_planner_program__' . $view_mode,
+    '#content' => $program->content,
+    '#view_mode' => $view_mode,
+    '#language' => NULL,
+  );
+
+  return $program->content;
+}
+
+/**
+ * Get placeholder electives for a given program.
+ *
+ * @param object $program
+ *   The GraduationPlannerProgram entity.
+ * @return array
+ *   Return an array of electives.
+ */
+function _placeholder_electives_list($program) {
+  $options = &drupal_static(__FUNCTION__);
+  if (!isset($options[$program->program_id])) {
+    $options[$program->program_id] = array();
+    // Querying database for class_id
+    $result = db_query('select class_id from {graduation_planner_class} where class_department = :department_id and class_required = 2', array('department_id' => $program->department_id));
+    // Returns associated array by class_id
+    $class_ids = $result->fetchAllAssoc('class_id');
+    //  Load multiple arrays by class_id
+    $classes = graduation_planner_class_load_multiple(array_keys($class_ids));
+
+    foreach ($classes as $class) {
+      $options[$program->program_id][$class->class_id] = graduation_planner_class_title($class);
+    }
+  }
+
+  return $options[$program->program_id];
+}
+
+/**
+ * Get a list of electives for the program.
+ *
+ * @param object $program
+ *   The GraduationPlannerProgram entity.
+ *
+ * @return array
+ *   Return an array of electives for the program.
+ */
+function graduation_planner_program_get_elective_options($program) {
+  $elective_ids = array();
+  if (isset($program->field_elective_courses[LANGUAGE_NONE])) {
+    foreach ($program->field_elective_courses[LANGUAGE_NONE] as $index => $elective) {
+      $elective_ids[$elective['course_id']] = $elective['course_id'];
+    }
+  }
+  $electives = graduation_planner_class_load_multiple(array_keys($elective_ids));
+  return $electives;
+}
+
+/**
+ * Get all programs.
+ *
+ * @return array
+ *   Return an array of GraduationPlannerProgram entities.
+ */
+function graduation_planner_program_get_programs() {
+  // Query the program table for the programs.
+  $result = db_query('select program_id from {graduation_planner_program} gpp where program_type > 0');
+  // Select the program id.
+  $program_ids = $result->fetchAllAssoc('program_id');
+  // Loads multiple program entities.
+  $programs = graduation_planner_program_load_multiple(array_keys($program_ids));
+  return $programs;
+}
+
+/**
+ * Returns an array of programs in the department.
+ *
+ * @param object $department
+ *   The GraduationPlannerDepartment entity.
+ * @return array
+ *   Return an array of programs in the department.
+ */
+function graduation_planner_program_list_programs($department = null) {
+
+  // Select graduation_planner_program table for querying.
+  $query = db_select('graduation_planner_program', 'gpp')->extend('PagerDefault');
+
+  // Query the database for the program_id.
+  $query->fields('gpp', array('program_id'));
+
+  // If there is a value...
+  if (isset($department)) {
+    $query->condition('gpp.department_id', $department->department_id);
+  }
+
+  $result = $query->execute();
+
+  // Returns associated array by program_id.
+  $program_ids = $result->fetchAllAssoc('program_id');
+
+  // Load programs with program_ids.
+  $programs = graduation_planner_program_load_multiple(array_keys($program_ids));
+
+  $rows = array();
+
+  // Iterates over the programs array.
+  foreach ($programs as $program) {
+    $uri = $program->uri();
+
+    // Create a row with program name and description.
+    $rows[] = array(
+      'data' => array(
+        'program_name' => l($program->title, $uri['path']),
+        'program_description' => $program->description
+      )
+    );
+  }
+
+  // If the department entity is loaded.
+  if (isset($department)) {
+
+    // Create a link for adding a new program.
+    $content['create_program'] = array(
+      '#theme' => 'link',
+      '#text' => 'New Program',
+      '#path' => 'department/' . $department->department_id . '/program/new',
+      '#weight' => -100,
+      '#options' => array(
+        'attributes' => array('class' => array('button'), 'id' => 'new-class'),
+        'html' => FALSE,
+      ),
+      '#access' => user_access('create program')
+    );
+  }
+
+  // Create a renderable array, themed as table for the program list.
+  $content['program_list'] = array(
+    '#theme' => 'table',
+    '#rows' => $rows,
+    '#empty' => t('No Programs'),
+    '#header' => array(t('Program Name'), t('Program Description')),
+  );
+
+  // Add a pager to the content array.
+  $content['pager'] = array(
+    '#theme' => 'pager'
+  );
+
+  // Return a renderable array of content.
+  return $content;
+}
+
+/**
+ * Return the full name of a GraduationPlannerProgram entity.
+ *
+ * @param object $program
+ *   The GraduationPlannerProgram entity to return the name of.
+ * @param string $type
+ *   The name type to return.
+ * @return string
+ *   Return a string containing the name of the program.
+ */
+function graduation_planner_program_title($program, $type = 'short_name') {
+
+  // Calls program types function to a list of types.
+  $program_types = graduation_planner_program_program_types();
+
+  // Return a concrete title for the program.
+  return t($program_types[$program->program_type]['replacement_pattern'], array(
+    '@type' => $program_types[$program->program_type][$type],
+    '@program_name' => $program->title
+      )
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function graduation_planner_program_menu() {
+
+  // Administration page for programs.
+  $menu['admin/structure/graduation_planner_program/manage'] = array(
+    'title' => 'Graduation Planner - Progrtam Admin',
+    'description' => 'Administration page for programs',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_program_admin_form'),
+    'access arguments' => array('administer graduation_planner_program entities'),
+    'file' => 'graduation_planner_program.admin.inc',
+  );
+  // Creates a list of programs menu.
+  $menu['department/%graduation_planner_department/program'] = array(
+    'title' => 'Programs',
+    'page callback' => 'graduation_planner_program_list_programs',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  // Creates a menu_router item for creating a new program.
+  $menu['department/%graduation_planner_department/program/new'] = array(
+    'title' => 'New program',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_program_form', 1),
+    'access arguments' => array('create program'),
+    'type' => MENU_CALLBACK,
+  );
+  // Creates a menu_router item for a specific program.
+  $menu['department/%graduation_planner_department/program/%graduation_planner_program'] = array(
+    'title' => 'Program',
+    'title callback' => 'graduation_planner_program_title',
+    'title arguments' => array(3),
+    'page callback' => 'graduation_planner_program_view',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  //  Creates menu_default_local_task
+  $menu['department/%graduation_planner_department/program/%graduation_planner_program/view'] = array(
+    'title' => 'View',
+    'page callback' => 'graduation_planner_program_view',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -100,
+  );
+  // Creates menu_local_task department/%graduation_planner_department/program/%graduation_planner_program/edit.
+  $menu['department/%graduation_planner_department/program/%graduation_planner_program/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_program_form', 1, 3),
+    'access arguments' => array('edit program'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -99
+  );
+
+  // Returns menu_router items.
+  return $menu;
+}
+
+/**
+ * Implements hook_bundle_copy_info().
+ */
+function graduation_planner_program_bundle_copy_info() {
+  return array(
+    'graduation_planner_program' => array(
+      'bundle_export_callback' => 'node_type_get_type',
+      'bundle_save_callback' => 'node_type_save',
+      'export_menu' => array(
+        'path' => 'admin/structure/types/export',
+        'access arguments' => 'administer content types',
+      ),
+      'import_menu' => array(
+        'path' => 'admin/structure/types/import',
+        'access arguments' => 'administer content types',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function graduation_planner_program_field_extra_fields() {
+  $extra = array();
+  $extra['graduation_planner_program']['graduation_planner_program'] = array(
+    'form' => array(
+      'title' => array(
+        'label' => t('Program name'),
+        'description' => t('Program name'),
+        'weight' => -5,
+      ),
+      'description' => array(
+        'label' => t('Program description'),
+        'description' => t('Description'),
+        'weight' => -3,
+      ),
+    ),
+    'display' => array(
+      'title' => array(
+        'label' => t('Program name'),
+        'description' => t('Program name'),
+        'weight' => -5,
+      ),
+      'description' => array(
+        'label' => t('Program description'),
+        'description' => t('Description'),
+        'weight' => -3,
+      ),
+    ),
+  );
+  return $extra;
+}
+
+function graduation_planner_program_permission() {
+
+  return array(
+    // Permission to create a program.
+    'create program' => array(
+      'title' => t('Create graduation planner program'),
+      'description' => t('Create a new graduation planner program')
+    ),
+    // Permission to edit any program(advisors).
+    'edit any program' => array(
+      'title' => t('Edit any graduation planner program'),
+      'description' => t('Edit any program')
+    ),
+    //  Permission to edit your own program(students).
+    'edit own program' => array(
+      'title' => t('Edit own graduation planner program'),
+      'description' => t('Edit a graduation planner program you are an administrator for.')
+    ),
+    //  Permission to delete any program(advisors).
+    'delete any program' => array(
+      'title' => t('Delete any graduation planner program'),
+      'description' => t('Delete any program'),
+    ),
+    //  Permission to delete own program(student).
+    'delete own program' => array(
+      'title' => t('Delete own graduation planner program'),
+      'description' => t('Delete a graduation planner program you are an administrator for.')
+    )
+  );
+}
+
+/**
+ * Generate a list of requirements for this GraduationPlannerProgram.
+ *
+ * @param object $program
+ *   Program to get requirements for.
+ * @param bool $with_electives
+ *   Add electives to the course requirements.
+ *
+ * @return array
+ *   Return an array of requirements.
+ */
+function graduation_planner_program_get_course_requirements($program, $with_electives = true) {
+  $required_courses = array();
+  if (isset($program->field_required_course_list[LANGUAGE_NONE])) {
+    foreach ($program->field_required_course_list[LANGUAGE_NONE] as $course_key => $course) {
+      $required_courses[$course['course_id']] = array(
+        'course_id' => $course['course_id'],
+        'order' => $course_key,
+        'ordered' => $course['ordered'],
+        'priority' => $course['place'] * $course_key * $program->program_id,
+        'required' => 1,
+        'place' => $course['place']
+      );
+    }
+  }
+
+  // If with_electives is true...
+  if ($with_electives) {
+
+    // Check to see if the program has elective courses available.
+    if (isset($program->field_elective_courses[LANGUAGE_NONE])) {
+
+      // Iterate over the available elective courses...
+      foreach ($program->field_elective_courses[LANGUAGE_NONE] as $course_key => $course) {
+
+        // Add them to the array as elective courses.
+        $required_courses[$course['course_id']] = array(
+          'course_id' => $course['course_id'],
+          'order' => $course_key,
+          'ordered' => $course['ordered'],
+          'priority' => $course['place'] * $course_key * $program->program_id,
+          'required' => 0,
+          'place' => $course['place']
+        );
+      }
+    }
+  }
+
+
+  // Load the classes from the database based on the required_courses array.
+  $classes = graduation_planner_class_load_multiple(array_keys($required_courses));
+
+  // Iterate over the classes...
+  foreach ($classes as $class) {
+
+    // Add the class object to the required_courses data structure.
+    $required_courses[$class->class_id]['course'] = $class;
+
+    // Get the requirements for the class
+    $requirements = graduation_planner_class_get_requirements($class);
+
+    // If there are prerequisites for the class...
+    if (!empty($requirements)) {
+
+      // Iterate over the prerequisites...
+      foreach ($requirements as $requirement) {
+
+        // Add them to the required_courses array.
+        $required_courses[$class->class_id]['requirements'][] = $requirement['course_id'];
+      }
+    }
+
+    // If the requirements array is not empty.
+    if (!empty($requirements)) {
+
+      // Iterate over the requirements...
+      foreach ($requirements as $requirement) {
+
+        // If the requirement is not in the required_courses array...
+        if (!isset($required_courses[$requirement['course_id']])) {
+
+          // Add it to the required_courses array.
+          $required_courses[$requirement['course_id']] = array(
+            'course_id' => $requirement['course_id'],
+            'order' => $required_courses[$class->class_id]['order'] - 1,
+            'ordered' => 0,
+            'priority' => $course['place'] * ($required_courses[$class->class_id]['order'] - 1) * $program->program_id,
+            'required' => $required_courses[$class->class_id]['required'],
+            'place' => $course['place']
+          );
+        }
+      }
+    }
+  }
+
+  // Return an array of required courses.
+  return $required_courses;
+}
+
+function graduation_planner_program_get_course_requirements_multiple($programs = array(), $create_chain = TRUE) {
+
+  // Create a blank array of course requirements.
+  $course_requirements = array();
+
+  // Iterate over programs.
+  foreach ($programs as $program) {
+
+    // Merge the course requirements for the program.
+
+    $course_requirements += graduation_planner_program_get_course_requirements($program);
+  }
+
+  // Sort the course requirements by priority.
+  usort($course_requirements, '_sort_by_order');
+
+  // If create_chain is true...
+  if ($create_chain) {
+
+    // Pass the requirements through the chaining algorithm.
+    return graduation_planner_program_create_chain($course_requirements);
+  }
+
+  // Otherwise, return the course requirements array unchanged.
+  return $course_requirements;
+}
+
+/**
+ * Create a chain of all requirements.
+ *
+ * @param array $requirements
+ *   An array of course requirements.
+ * @param bool $include_prerequisites
+ *   Include the prerequisites for the required classes.
+ *
+ * @return array
+ *   Return an array of all requirements.
+ */
+function graduation_planner_program_create_chain($requirements, $include_prerequisites = true) {
+
+  // Create an array to hold the completed chain.
+  $chain = array();
+
+  // Create an array to hold class_ids of requirements.
+
+  $class_ids = array();
+
+  // Iterate over the requirements...
+  foreach ($requirements as $key => $requirement) {
+
+    // Add to class_ids if the requirement has a course_id.
+    if (isset($requirement['course_id'])) {
+      $class_ids[$key] = $requirement['course_id'];
+    }
+  }
+
+  // Get the classes from the class_ids.
+  $classes = graduation_planner_class_load_multiple($class_ids);
+
+  // Iterate over the requirements.
+  foreach ($requirements as $order_key => $requirement) {
+
+    // Add the requirement to the chain.
+    $chain[$requirement['course_id']] = array(
+      'requirements' => !empty($requirement['requirements']) ? $requirement['requirements'] : array(),
+      'class' => $classes[$requirement['course_id']],
+      'units' => $classes[$requirement['course_id']]->class_units,
+      'quarters_available' => array_filter(graduation_planner_class_quarters_available_field_data($classes[$requirement['course_id']])),
+      'required_standing' => $classes[$requirement['course_id']]->class_standing,
+      'required' => $requirement['required'],
+      'priority' => $requirement['priority'],
+      'order' => $requirement['order'],
+      'place' => $requirement['place'],
+    );
+  }
+
+  // Return the chain.
+  return $chain;
+}
+
+/**
+ * Compare array elements.
+ *
+ * @param array $a
+ *   The first element
+ * @param array $b
+ *   The second element
+ *
+ * @return int
+ *   Return -1 if less, 1 if more
+ */
+function _sort_by_order($a, $b) {
+  if ($a['priority'] == $b['priority']) {
+
+  }
+  return ($a['priority'] < $b['priority']) ? -1 : 1;
+}
+
+/**
+ * Graduation Planner Program Create/Edit form.
+ *
+ * @param array $form
+ *   The form array generated by the form builder functions.
+ * @param array $form_state
+ *   The current form_state, passed by reference.
+ * @param object $department
+ *   The GraduationPlannerDeparment entity.
+ * @param object $program
+ *   (Optional) The GraduationPlannerProgram entity to be edited.
+ *
+ * @return array
+ *   The form array.
+ */
+function graduation_planner_program_form($form, &$form_state, $department, $program = null) {
+  // Create a hidden form element for the department_id.
+  $form['department_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $department->department_id
+  );
+
+  // If there is a program entity...
+  if (isset($program)) {
+
+    // Create a hidden form element for the program_id.
+    $form['program_id'] = array(
+      '#type' => 'hidden',
+      '#value' => $program->program_id
+    );
+  }
+  else {
+
+    // Create a GraduationPlannerProgram stub, for adding fields.
+    $program = entity_get_controller('graduation_planner_program')->create();
+  }
+
+  // Create a select for program types..
+  $form['program_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Program type'),
+    '#options' => _get_program_types(),
+    '#default_value' => isset($program->program_type) ? $program->program_type : 0
+  );
+
+  // Create a textfield for the program name.
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Program name'),
+    '#description' => t('The name of the program (Computer Science, Mathmatics, etc)'),
+    '#default_value' => isset($program->title) ? $program->title : '',
+    '#required' => TRUE
+  );
+  // Add a form element for the description.
+  $form['description'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Department description'),
+    '#description' => t('The description of the program'),
+    '#default_value' => isset($program->description) ? $program->description : '',
+    '#required' => TRUE,
+  );
+
+  // Add a form element for the elective credits.
+  $form['elective_credits'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Elective credits required'),
+    '#default_value' => isset($program->elective_credits) ? $program->elective_credits : 0
+  );
+
+  // Create a fieldset for program options.
+  $form['options'] = array(
+    '#tree' => TRUE,
+    '#type' => 'fieldset',
+    '#title' => t('Program options')
+  );
+
+  // Add a checkbox for the program to allow students to choose electives.
+  $form['options']['allow_choose_electives'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow the student to choose electives during plan generation.'),
+    '#default_value' => isset($program->options['allow_choose_electives']) ? $program->options['allow_choose_electives'] : 0
+  );
+
+  // Add a select box for placeholder electives.
+  $form['options']['placeholder_elective'] = array(
+    '#type' => 'select',
+    '#title' => t('Placeholder elective'),
+    '#empty_option' => t('-- Select --'),
+    '#options' => _placeholder_electives_list($program),
+    '#default_value' => isset($program->options['placeholder_elective']) ? $program->options['placeholder_elective'] : 0,
+    '#required' => TRUE,
+    '#description' => t('The class that will be placed in the plan to account for unplaced electives. (This may need to be created)')
+  );
+
+  // Attach field forms to entity.
+  field_attach_form('graduation_planner_program', $program, $form, $form_state);
+
+  // Add a submit button.
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => isset($program->program_id) ? t('Save') : t('Create Program')
+  );
+
+  // Return form.
+  return $form;
+}
+
+/**
+ * Graduation Planner Program Create/Edit form submit function.
+ *
+ * @param array $form
+ *   Form array generated by the form builder functions.
+ * @param array $form_state
+ *   Current form_state, passed by reference.
+ *
+ * @return array
+ *   Returns the form array.
+ */
+function graduation_planner_program_form_submit($form, &$form_state) {
+
+  // If the program_id value is set...
+  if (isset($form_state['values']['program_id'])) {
+
+    // Load the program from the database.
+    $program = graduation_planner_program_load($form_state['values']['program_id']);
+
+    // Iterate over the form_state['values']...
+    foreach ($form_state['values'] as $property => $value) {
+
+      // Update the program properties with the values passed from the form.
+      $program->{$property} = $value;
+    }
+  }
+
+  // Otherwise...
+  else {
+
+    // Create a new GraduationPlannerProgram entity with the passed values.
+    $program = entity_get_controller('graduation_planner_program')->create($form_state['values']);
+  }
+
+  // Attach field submit handlers.
+  field_attach_submit('graduation_planner_program', $program, $form, $form_state);
+
+  // Make this a new revision.
+  $program->is_new_revision = true;
+
+  // Save the program.
+  entity_save('graduation_planner_program', $program);
+
+  // Get the redirect path.
+  $redirect_path = $program->uri();
+
+  // Redirect.
+  $form_state['redirect'] = $redirect_path['path'];
+  return $form;
+}
+
+/*
+ * Gets a list of long names for the program types.
+ */
+
+function _get_program_types() {
+  // graduation_planner_program_program_types function is called which gets
+  // the program types.
+  $types = graduation_planner_program_program_types();
+  //  Display the programs.
+  $output = array();
+  foreach ($types as $key => $type) {
+    $output[$key] = $type['long_name'];
+  }
+  return $output;
+}
+
+/**
+ * Returns an array of program types.
+ *
+ * @return array
+ *   Return an array of program types.
+ */
+function graduation_planner_program_program_types() {
+
+  return array(
+    0 => array(
+      // A.A. program type.
+      'short_name' => t('A.A.'),
+      'long_name' => t('Associates of Arts'),
+      'replacement_pattern' => '@type in @program_name'
+    ),
+    1 => array(
+      // B.S. program type.
+      'short_name' => t('B.S.'),
+      'long_name' => t('Bachelors of Science'),
+      'replacement_pattern' => '@type in @program_name'
+    ),
+    2 => array(
+      // B.A. program type.
+      'short_name' => t('B.A.'),
+      'long_name' => t('Bachelors of Arts'),
+      'replacement_pattern' => '@type in @program_name'
+    ),
+    3 => array(
+      'short_name' => t('B.A.S'),
+      'long_name' => t('Bachelors of Applied Science'),
+      'replacement_pattern' => '@type in @program_name'
+    ),
+    4 => array(
+      // M.S. program type.
+      'short_name' => t('M.S.'),
+      'long_name' => t('Masters of Science'),
+      'replacement_pattern' => '@type in @program_name'
+    ),
+    5 => array(
+      //  Minor program type.
+      'short_name' => t('Minor'),
+      'long_name' => t('Minor'),
+      'replacement_pattern' => '@program_name @type'
+    )
+  );
+}

@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Unit and System Tests for graduation planner module.
+ */
+
+/**
+ * GraduationPlannerUnitTestCase
+ */
+class GraduationPlannerUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Info function for GraduationPlannerUnitTestCase.
+   *
+   * @return array
+   *   The array used by Simpletest to run tests
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Unit tests graduation planner base module',
+      'description' => 'Tests for graduation planner base module.',
+      'group' => 'GraduationPlanner',
+    );
+  }
+
+  /**
+   * Set up function for GraduationPlannerUnitTestCase.
+   */
+  public function setUp() {
+
+    // Load graduation_planner module for testing.
+
+    drupal_load('module', 'graduation_planner');
+    parent::setUp();
+  }
+
+  /**
+   * Call graduation_planner_menu and check that it returns correct result.
+   *
+   * Note that no environment is provided; we're just testing the correct
+   * behavior of a function when passed specific arguments.
+   */
+  public function testMenuIsArray() {
+
+    $this->assertTrue(function_exists('graduation_planner_menu'), 'graduation_planner_menu does not exists!');
+    if (function_exists('graduation_planner_menu')) {
+      $result = graduation_planner_menu();
+
+      $this->assertTrue(is_array($result), 'graduation_planner_menu should return an array!');
+    }
+    else {
+      trigger_error('Catastrophe');
+    }
+  }
+
+}

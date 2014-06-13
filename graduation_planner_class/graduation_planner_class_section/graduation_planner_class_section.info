@@ -1,0 +1,11 @@
+name = Graduation Planner Class Section Entity
+description = The Class Section Entity for graduation planner
+package = Graduation Planner
+core = 7.x
+dependencies[] = simpletest
+dependencies[] = entity
+dependencies[] = graduation_planner
+dependencies[] = graduation_planner_department
+dependencies[] = graduation_planner_class
+stylesheets[all][] = css/graduation_planner_class.css
+files[] = graduation_planner_class_section.test

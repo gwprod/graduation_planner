@@ -1,0 +1,183 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Nov 9, 2013, 3:21:48 AM
+    Author     : mltbooks
+*/
+
+
+a.button:link, a.button:visited {
+    -moz-outline-radius: 4px;
+    background: -moz-linear-gradient(center top , #4186B5 0%, #3B81AF 9%, #286E9B 25%, #3478A6 84%, #4186B5 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: 1px solid #FFFFFF;
+    border-radius: 4px;
+    color: #FFF7F7;
+    display: inline-block;
+    font-weight: bold;
+    margin: 0 4px;
+    min-height: 10px;
+    outline: 1px solid #9BABB0;
+    padding: 2px 4px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+.content ul.graduation_planner_plan ul {
+    display: inline-block;
+    margin:0px;
+}
+.content ul.graduation_planner_plan {
+    margin: 0;
+    padding: 0;
+    width:930px;
+}
+div#content-messages {
+    width: 930px;
+}
+
+h2.unplaced_courses, h2.year_header {
+    background-color: #FFFFFF;
+    border-bottom: 2px solid #98ACDC;
+    padding: 6px;
+    text-align: center;
+    width: 916px;
+}
+.content ul.graduation_planner_plan li.quarter {
+
+    border-radius: 10px;
+    display: inline-block;
+    float: left;
+    list-style: none outside none;
+    margin-right: 10px;
+    min-height: 200px;
+    min-width: 200px;
+    padding-top: 10px;
+}
+.content ul.graduation_planner_plan ul.year {
+    display: inline-block;
+    float: none;
+    position: relative;
+    margin-left:0px;
+}
+ul.graduation_planner_plan ul.quarter li.undraggable{
+    background-color:#EEEEEE;
+    cursor:not-allowed;
+}
+ul.graduation_planner_plan ul.quarter li.draggable{
+    background-color: #FEFFF4;
+    cursor:pointer;
+}
+form#graduation-planner-plan-change-form {
+    display: inline-block;
+}
+
+div.content > .item-list {
+    display: block;
+    float: left;
+}
+
+ul.graduation_planner_plan ul.quarter li.draggable, ul.graduation_planner_plan ul.quarter li.undraggable {
+
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px #515151;
+    font-size: small;
+    margin: 0 0 5px;
+    padding: 5px;
+}
+
+ul#graduation_planner_plan li.undraggable {
+    opacity: 0.5;
+}
+
+ul.graduation_planner_plan ul.quarter, ul.graduation_planner_plan ul.unplanned {
+    border: 1px solid transparent;
+    border-radius: 5px;
+
+    list-style: none outside none;
+    margin-left: 0;
+    min-height: 80px;
+    min-width: 200px;
+    padding: 5px;
+}
+ul.graduation_planner_plan ul.quarter li.total_credits {
+    border: 0 none;
+    font-weight: bold;
+    margin: 0;
+    min-height: 10px;
+    padding: 0;
+    text-align: center;
+}
+h3.quarter_header {
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+}
+h2.year_header {
+    list-style: none outside none;
+    text-align: center;
+}
+ul.graduation_planner_plan {
+    list-style: none outside none;
+    width: 941px;
+}
+ul.graduation_planner_plan ul.connectedSortable.ui-sortable.drop-hover {
+    background-color: rgba(210, 76, 76, 0.79);
+    border-color: #E4C8C8;
+}
+
+ul#graduation_planner_plan a.ui-delete {
+    background-image: url("/sites/all/modules/graduation_planner/img/delete16x16.png");
+    background-repeat: no-repeat;
+    color: rgba(0, 0, 0, 0);
+    display: inline-block;
+    float: right;
+    height: 16px;
+    margin-left: 4px;
+    margin-right: 0;
+    width: 16px;
+}
+div.graduation-planner-plan-class--list div.field {
+    float: left;
+}
+div.graduation-planner-plan-class--list div.field {
+    display: inline-block;
+    float: left;
+    width: 145px;
+}
+ul#graduation_planner_plan a.ui-edit {
+    background-image: url("/sites/all/modules/graduation_planner/img/edit16x16.png");
+    background-repeat: no-repeat;
+    color: rgba(0, 0, 0, 0);
+    display: inline-block;
+    float: right;
+    height: 16px;
+    margin-left: 5px;
+    margin-right: 0;
+    width: 16px;
+}
+ul#graduation_planner_plan a.ui-add {
+    background-image: url("/sites/all/modules/graduation_planner/img/add16x16.png");
+    background-repeat: no-repeat;
+    border-radius: 2px;
+    color: #000000;
+    display: inline-block;
+    height: 16px;
+    margin-left: 5px;
+    padding: 0;
+    text-indent: -9999px;
+    vertical-align: sub;
+    white-space: nowrap;
+    width: 16px;
+}
+.ui-sortable-placeholder
+{
+    display:none;
+}
+ul.drop-hover .ui-sortable-placeholder
+{
+    display:block;
+    background-color:white;
+}

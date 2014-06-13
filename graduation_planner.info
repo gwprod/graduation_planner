@@ -1,0 +1,11 @@
+name = Graduation Planner
+description = Plans the graduation of CS Students
+package = Graduation Planner
+core = 7.x
+dependencies[] = simpletest
+dependencies[] = entity
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = views
+files[] = graduation_planner.test
+stylesheets[all][] = css/graduation_planner.css

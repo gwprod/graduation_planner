@@ -1,0 +1,7 @@
+name = Graduation Planner Department Entity
+description = The Department Entity Entity for graduation planner
+package = Graduation Planner
+core = 7.x
+dependencies[] = simpletest
+dependencies[] = entity
+dependencies[] = graduation_planner
