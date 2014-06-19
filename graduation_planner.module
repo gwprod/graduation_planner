@@ -267,7 +267,6 @@ function graduation_planner_user_load_by_name($string) {
   return user_load_by_name($string);
 }
 
-
 /**
  * Search for autocomplete matches for users, by name.
  *
@@ -388,7 +387,7 @@ function graduation_planner_export() {
     'Content-Type' => 'application/octet-stream',
     'Content-Disposition' => 'attachment; filename="' . 'graduation_planner.export' . '"',
     'Content-Length' => filesize($file_name),
-    )
+      )
   );
   drupal_exit();
 }
@@ -498,7 +497,7 @@ function graduation_planner_get_terms() {
  */
 function graduation_planner_get_term_machine_name(array $terms) {
   $terms_array = graduation_planner_terms();
- 
+
   $output = array();
   foreach ($terms as $term) {
     if (isset($terms_array[$term])) {
@@ -533,13 +532,13 @@ function graduation_planner_class_standings() {
  * @return array
  *    Return an array of academic years.
  */
-function graduation_planner_academic_years()
-{
+function graduation_planner_academic_years() {
   return array(
     2013 => t('@year', array('@year' => graduation_planner_format_year(2013))),
     2014 => t('@year', array('@year' => graduation_planner_format_year(2014))),
   );
 }
+
 /**
  * Adds permissions to a role.
  *
@@ -552,6 +551,7 @@ function _graduation_planner_add_permissions($role_name, array $permissions) {
   $role = user_role_load_by_name($role_name);
   user_role_grant_permissions($role->rid, $permissions);
 }
+
 /**
  * Add a new role.
  *
@@ -567,11 +567,10 @@ function _graduation_planner_add_role($machine_name, $weight = 0) {
   user_role_save($role);
 }
 
-/*
+/**
  * Implements hook_libraries_info().
  */
-function graduation_planner_libraries_info()
-{
+function graduation_planner_libraries_info() {
   $libraries['jquery.ui.touch-punch'] = array(
     'name' => 'jQuery UI Touch-Punch',
     'vendor url' => 'http://example.com/simple',
