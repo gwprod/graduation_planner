@@ -4,7 +4,6 @@
  * @file
  * Graduation Planner Class module file.
  */
-
 require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_class') . "/graduation_planner_class.field.inc";
 
 /**
@@ -68,25 +67,49 @@ function graduation_planner_class_menu() {
     'access arguments' => array('administer graduation_planner_class entities'),
     'file' => 'graduation_planner_class.admin.inc',
   );
+  $menu['class'] = array(
+    'title' => 'Classes',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_class_list_form'),
+    'access callback' => 'graduation_planner_class_access',
+    'access arguments' => array('list classes'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $menu['class/list'] = array(
+    'title' => 'Class list',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_class_list_form'),
+    'access callback' => 'graduation_planner_class_access',
+    'access arguments' => array('list classes'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $menu['class/new'] = array(
+    'title' => 'Create new class',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_class_form'),
+    'access callback' => 'graduation_planner_class_access',
+    'access arguments' => array('create class'),
+    'type' => MENU_LOCAL_TASK,
+  );
   $menu['class/%graduation_planner_class'] = array(
-    'title' => '',
+    'title' => 'Class',
     'title callback' => 'graduation_planner_class_title',
     'title arguments' => array(1),
     'page callback' => 'graduation_planner_class_view',
     'page arguments' => array(1),
     'access callback' => 'graduation_planner_class_access',
     'access arguments' => array('view class'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
   $menu['class/%graduation_planner_class/view'] = array(
-    'title' => '',
+    'title' => 'Class',
     'title callback' => 'graduation_planner_class_title',
     'title arguments' => array(1),
     'page callback' => 'graduation_planner_class_view',
     'access callback' => 'graduation_planner_class_access',
     'access arguments' => array('view class'),
     'page arguments' => array(1),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
   $menu['class/%graduation_planner_class/delete'] = array(
     'title' => 'Delete class',
@@ -104,30 +127,7 @@ function graduation_planner_class_menu() {
     'access arguments' => array('edit own class', 1),
     'type' => MENU_LOCAL_TASK,
   );
-  $menu['class'] = array(
-    'title' => 'Class menu',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('graduation_planner_class_list_form'),
-    'access callback' => 'graduation_planner_class_access',
-    'access arguments' => array('list classes'),
-    'type' => MENU_NORMAL_ITEM,
-  );
-  $menu['class/list'] = array(
-    'title' => 'Class list',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('graduation_planner_class_list_form'),
-    'access callback' => 'graduation_planner_class_access',
-    'access arguments' => array('list classes'),
-    'type' => MENU_NORMAL_ITEM,
-  );
-  $menu['class/new'] = array(
-    'title' => 'Create new class',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('graduation_planner_class_form'),
-    'access callback' => 'graduation_planner_class_access',
-    'access arguments' => array('create class'),
-    'type' => MENU_NORMAL_ITEM,
-  );
+  
   return $menu;
 }
 
@@ -298,7 +298,7 @@ function graduation_planner_class_get_classes($department = NULL, $search_term =
       ),
     );
   }
-  $content['create_class'] = array(
+  /*$content['create_class'] = array(
     '#theme' => 'link',
     '#text' => t('New class'),
     '#path' => 'class/new',
@@ -308,7 +308,7 @@ function graduation_planner_class_get_classes($department = NULL, $search_term =
       'html' => FALSE,
     ),
     '#access' => graduation_planner_class_access('create class'),
-  );
+  );*/
   $content['class_list'] = array(
     '#theme' => 'table',
     '#rows' => $rows,
@@ -1048,23 +1048,62 @@ function graduation_planner_class_uri($class) {
   return array('path' => 'class/' . $class->identifier());
 }
 
-function graduation_planner_class_load_by_title($course_title)
-{
+function graduation_planner_class_load_by_title($course_title) {
   $content = array();
   $query = db_select('graduation_planner_class', 'gpc')->extend('PagerDefault');
   $query->leftJoin('graduation_planner_department', 'gpd', 'gpd.department_id = gpc.class_department');
   $query->fields('gpc', array('class_id'));
-  
-  
-    $or = db_or();
-    $or->where('gpc.title LIKE \'%' . $course_title . '%\'');
-    $or->where('gpc.class_number LIKE \'%' . $course_title . '%\'');
-    $or->where("concat(gpd.short_name,gpc.class_number)LIKE '%$course_title%'");
-    $or->where("concat(gpd.short_name,' ',gpc.class_number)LIKE '%$course_title%'");
-    $query->condition($or);
-  
+
+
+  $or = db_or();
+  $or->where('gpc.title LIKE \'%' . $course_title . '%\'');
+  $or->where('gpc.class_number LIKE \'%' . $course_title . '%\'');
+  $or->where("concat(gpd.short_name,gpc.class_number)LIKE '%$course_title%'");
+  $or->where("concat(gpd.short_name,' ',gpc.class_number)LIKE '%$course_title%'");
+  $query->condition($or);
+
   $result = $query->execute();
   $class_ids = $result->fetchAllAssoc('class_id');
   $classes = graduation_planner_class_load_multiple(array_keys($class_ids));
   return reset($classes);
+}
+
+function graduation_planner_class_exporter_definition() {
+  $info = entity_get_info('graduation_planner_class');
+  return array('graduation_planner_class' => $info);
+}
+
+function graduation_planner_class_importer_definition() {
+  return array(
+    'graduation_planner_class' => array(
+      'import callback' => 'graduation_planner_class_import'
+    ),
+  );
+}
+
+function graduation_planner_class_import($entities, $revisions) {
+  $query = db_select('graduation_planner_class', 't');
+  $query->fields('t', array('class_id'));
+  $results = $query->execute();
+  $class_ids = $results->fetchAllAssoc('class_id');
+
+  entity_delete_multiple('graduation_planner_class', array_keys($class_ids));
+  if (isset($revisions)) {
+    foreach ($revisions as $revision) {
+      //watchdog('graduation_planner_department', print_r($revision, TRUE));
+     
+      $original = entity_load('graduation_planner_class', array($revision->class_id));
+      
+      if(empty($original))
+      {
+        $revision->is_new = TRUE;
+        entity_save('graduation_planner_class', $revision);
+        
+      } else {
+        $revision->is_new_revision = TRUE;
+        entity_save('graduation_planner_class', $revision);
+      }
+      
+    }
+  }
 }

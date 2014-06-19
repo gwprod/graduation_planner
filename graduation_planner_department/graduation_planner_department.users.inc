@@ -311,7 +311,7 @@ function theme_graduation_planner_department_users_get_staff_form($variables) {
         'advisor' => drupal_render($form['users'][$user_id]['advisor']),
         'administrator' => drupal_render($form['users'][$user_id]['administrator']),
       ),
-      'no_striping' => TRUE,
+      
     );
   }
 

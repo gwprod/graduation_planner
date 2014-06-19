@@ -85,7 +85,7 @@ div.item-list ul.error {
     text-decoration:line-through;
     color:#BAB8B8;
 }
-.item-list ul.quarter li, .item-list ul.unplanned li {
+ul.quarter li,  ul.unplanned li {
     background-color: #F4EDD7;
     border: 1px solid #BAB8B8;
     border-radius: 5px;
@@ -97,7 +97,7 @@ div.item-list ul.error {
     text-transform: uppercase;
     width: 190px;
 }
-.item-list ul.unplanned li {
+ul.unplanned li {
     float: left;
     margin-right: 5px;
 }
@@ -118,4 +118,11 @@ div.total_credits {
 }
 ul#graduation_planner_plan li {
     list-style: none outside none;
+}
+
+ul.connectedSortable > li
+{
+
+    box-sizing: content-box;
+
 }

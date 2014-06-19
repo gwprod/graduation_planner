@@ -244,7 +244,7 @@ function graduation_planner_class_section_menu() {
     'access callback' => 'graduation_planner_class_access',
     'access arguments' => array('create class'),
     'page arguments' => array('graduation_planner_class_section_form', 1),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
 
   return $menu;
@@ -589,4 +589,43 @@ function graduation_planner_class_section_entity_info() {
  */
 function graduation_planner_class_section_uri($section) {
   return array('path' => 'class/' . $section->class_id . '/section/' . $section->identifier());
+}
+function graduation_planner_class__section_exporter_definition() {
+  $info = entity_get_info('graduation_planner_class_section');
+  return array('graduation_planner_class_section' => $info);
+}
+
+function graduation_planner_class_section_importer_definition() {
+  return array(
+    'graduation_planner_class_section' => array(
+      'import callback' => 'graduation_planner_class_section_import'
+    ),
+  );
+}
+
+function graduation_planner_class_section_import($entities, $revisions) {
+  $query = db_select('graduation_planner_class_section', 't');
+  $query->fields('t', array('section_id'));
+  $results = $query->execute();
+  $class_ids = $results->fetchAllAssoc('section_id');
+
+  entity_delete_multiple('graduation_planner_class_section', array_keys($class_ids));
+  if (isset($revisions)) {
+    foreach ($revisions as $revision) {
+      
+     
+      $original = entity_load('graduation_planner_class_section', array($revision->section_id));
+      
+      if(empty($original))
+      {
+        $revision->is_new = TRUE;
+        entity_save('graduation_planner_class_section', $revision);
+        
+      } else {
+        $revision->is_new_revision = TRUE;
+        entity_save('graduation_planner_class_section', $revision);
+      }
+      
+    }
+  }
 }

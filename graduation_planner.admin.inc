@@ -123,3 +123,60 @@ function graduation_planner_admin_form_submit($form, &$form_state) {
 
   drupal_set_message(t('Graduation Planner settings successfully saved'));
 }
+
+function graduation_planner_admin_import_form($form, &$form_state)
+{
+  $form['file'] = array(
+    
+    '#type' => 'file',
+    '#title' => t('Choose a file'),
+    '#title_display' => 'invisible',
+    '#size' => 22,
+    '#theme_wrappers' => array(),
+    '#description' => t('Upload a file exported by Graduation Planner.  This will delete all entities and users (except User 1)'),
+    '#weight' => -10,
+  );
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Upload File')
+  );
+  return $form;
+}
+function graduation_planner_admin_import_form_validate($form, &$form_state)
+{
+   $file = file_save_upload('file', array(
+    
+    
+    // Validate extensions.
+    'file_validate_extensions' => array('export'),
+  ));
+  // If the file passed validation:
+  if ($file) {
+    // Move the file into the Drupal file system.
+    if ($file = file_move($file, 'public://')) {
+      // Save the file for use in the submit handler.
+      $form_state['storage']['file'] = $file;
+    }
+    else {
+      form_set_error('file', t("Failed to write the uploaded file to the site's file folder."));
+    }
+  }
+  else {
+    form_set_error('file', t('No file was uploaded.'));
+  }
+}
+function graduation_planner_admin_import_form_submit($form, &$form_state)
+{
+  $file = $form_state['storage']['file'];
+  // We are done with the file, remove it from storage.
+  unset($form_state['storage']['file']);
+  // Make the storage of the file permanent.
+  $uri = $file->uri;
+  $file_name = drupal_realpath($uri);
+  $loaded_file = file_get_contents($file_name);
+  $entities = unserialize($loaded_file);
+  graduation_planner_importer($entities);
+  // Set a response to the user.
+  //drupal_set_message(t('The form has been submitted and the image has been saved, filename: @filename.', array('@filename' => $file->filename)));
+}

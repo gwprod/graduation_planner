@@ -9,7 +9,22 @@
 
 
 (function($) {
+    Drupal.theme.prototype.ModalDialog = function () {
+    var html = ''
+    html += '  <div id="ctools-modal">'
+    html += '    <div class="modal-dialog">' // panels-modal-content
+    html += '      <div class="modal-header">';
+    html += '        <a class="close" href="#">x';
+    html += '        </a>';
+    html += '        <h4 id="modal-title" class="modal-title"></h4>';
+    html += '      </div>';
+    html += '      <div id="modal-content" class="modal-content">';
+    html += '      </div>';
+    html += '    </div>';
+    html += '  </div>';
 
+    return html;
+  }
 
     Drupal.behaviors.dragAndDrop = {
         attach: function(context, settings) {

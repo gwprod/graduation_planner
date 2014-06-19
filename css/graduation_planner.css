@@ -24,11 +24,11 @@ a.button:link, a.button:visited {
     text-decoration: none;
     text-transform: uppercase;
 }
-.content ul.graduation_planner_plan ul {
+ul.graduation_planner_plan ul {
     display: inline-block;
     margin:0px;
 }
-.content ul.graduation_planner_plan {
+ul.graduation_planner_plan {
     margin: 0;
     padding: 0;
     width:930px;
@@ -44,7 +44,7 @@ h2.unplaced_courses, h2.year_header {
     text-align: center;
     width: 916px;
 }
-.content ul.graduation_planner_plan li.quarter {
+ul.graduation_planner_plan li.quarter {
 
     border-radius: 10px;
     display: inline-block;
@@ -55,7 +55,7 @@ h2.unplaced_courses, h2.year_header {
     min-width: 200px;
     padding-top: 10px;
 }
-.content ul.graduation_planner_plan ul.year {
+ul.graduation_planner_plan ul.year {
     display: inline-block;
     float: none;
     position: relative;
@@ -73,7 +73,7 @@ form#graduation-planner-plan-change-form {
     display: inline-block;
 }
 
-div.content > .item-list {
+div.content .item-list {
     display: block;
     float: left;
 }
@@ -129,7 +129,7 @@ ul.graduation_planner_plan ul.connectedSortable.ui-sortable.drop-hover {
 }
 
 ul#graduation_planner_plan a.ui-delete {
-    background-image: url("/sites/all/modules/graduation_planner/img/delete16x16.png");
+    background-image: url("../img/delete16x16.png");
     background-repeat: no-repeat;
     color: rgba(0, 0, 0, 0);
     display: inline-block;
@@ -148,7 +148,7 @@ div.graduation-planner-plan-class--list div.field {
     width: 145px;
 }
 ul#graduation_planner_plan a.ui-edit {
-    background-image: url("/sites/all/modules/graduation_planner/img/edit16x16.png");
+    background-image: url("../img/edit16x16.png");
     background-repeat: no-repeat;
     color: rgba(0, 0, 0, 0);
     display: inline-block;
@@ -159,7 +159,7 @@ ul#graduation_planner_plan a.ui-edit {
     width: 16px;
 }
 ul#graduation_planner_plan a.ui-add {
-    background-image: url("/sites/all/modules/graduation_planner/img/add16x16.png");
+    background-image: url("../img/add16x16.png");
     background-repeat: no-repeat;
     border-radius: 2px;
     color: #000000;

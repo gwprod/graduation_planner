@@ -883,3 +883,42 @@ function graduation_planner_program_program_types() {
     )
   );
 }
+function graduation_planner_program_exporter_definition() {
+  $info = entity_get_info('graduation_planner_program');
+  return array('graduation_planner_program' => $info);
+}
+
+function graduation_planner_program_importer_definition() {
+  return array(
+    'graduation_planner_program' => array(
+      'import callback' => 'graduation_planner_program_import'
+    ),
+  );
+}
+
+function graduation_planner_program_import($entities, $revisions) {
+  $query = db_select('graduation_planner_program', 't');
+  $query->fields('t', array('program_id'));
+  $results = $query->execute();
+  $class_ids = $results->fetchAllAssoc('program_id');
+
+  entity_delete_multiple('graduation_planner_program', array_keys($class_ids));
+  if (isset($revisions)) {
+    foreach ($revisions as $revision) {
+      //watchdog('graduation_planner_department', print_r($revision, TRUE));
+     
+      $original = entity_load('graduation_planner_program', array($revision->program_id));
+      
+      if(empty($original))
+      {
+        $revision->is_new = TRUE;
+        entity_save('graduation_planner_program', $revision);
+        
+      } else {
+        $revision->is_new_revision = TRUE;
+        entity_save('graduation_planner_program', $revision);
+      }
+      
+    }
+  }
+}

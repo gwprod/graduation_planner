@@ -226,7 +226,7 @@ function graduation_planner_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'user_login':
-      $block['content'] = drupal_get_form('user_login');
+      //$block['content'] = drupal_get_form('user_login');
       break;
   }
   return $block;
@@ -304,6 +304,11 @@ function _realname_autocomplete($string = '') {
 }
 
 function graduation_planner_menu() {
+  $items['graduation_planner/export'] = array(
+    'page callback' => 'graduation_planner_export',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content')
+  );
   $items['graduation_planner/user/autocomplete'] = array(
     'page callback' => 'graduation_planner_user_autocomplete',
     'access arguments' => array('access content'),
@@ -330,14 +335,72 @@ function graduation_planner_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'graduation_planner.admin.inc',
   );
+  $items['admin/config/graduation_planner/import'] = array(
+    'title' => 'Import Data',
+    'description' => 'Import Data previously exported by Graduation Planner',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('graduation_planner_admin_import_form'),
+    'access arguments' => array('administer graduation planner'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'graduation_planner.admin.inc'
+  );
   return $items;
 }
-function graduation_planner_permission()
-{
+
+function graduation_planner_permission() {
   return array(
     'administer graduation planner' => array(
       'title' => t('Administer Graduation Planner'),
       'description' => t('administer graduation planner'),
     ),
   );
+}
+
+function graduation_planner_export() {
+  $data = module_invoke_all('exporter_definition');
+  //print_r($data);
+  foreach ($data as $entity_type => $definition) {
+    $aggregate[$entity_type] = graduation_planner_exporter($entity_type, $definition);
+  }
+
+  
+  $file = serialize($aggregate);
+  //print $file;
+  $file_name = file_unmanaged_save_data($file, NULL, FILE_EXISTS_REPLACE);
+  file_transfer($file_name, array('Content-Type' => 'application/octet-stream',
+    'Content-Disposition' => 'attachment; filename="' . 'graduation_planner.export' . '"',
+    'Content-Length' => filesize($file_name)));
+}
+
+function graduation_planner_exporter($entity_type, $definition) {
+
+  $query = db_select($definition['revision table'], 't');
+  $query->fields('t', array($definition['entity keys']['revision']));
+  $result = $query->execute();
+  $revision_ids = $result->fetchAllAssoc($definition['entity keys']['revision']);
+
+
+
+  foreach ($revision_ids as $revision_id => $revision) {
+
+    $entity_revision = entity_load($entity_type, FALSE, array($definition['entity keys']['revision'] => $revision_id));
+    if ($entity_revision->default_revision == 1) {
+      $entities[] = current($entity_revision);
+      $entity_revisions[] = current($entity_revision);
+    }
+    else {
+      $entity_revisions[] = current($entity_revision);
+    }
+  }
+  return array('entities' => $entities, 'revisions' => $entity_revisions);
+}
+
+function graduation_planner_importer($entities) {
+  $import_definitions = module_invoke_all('importer_definition');
+  foreach ($entities as $type => $type_entities) {
+    watchdog('graduation_planner_importer', print_r($type_entities, TRUE));
+    if (isset($import_definitions[$type]['import callback']) && function_exists($import_definitions[$type]['import callback'])) {
+      call_user_func($import_definitions[$type]['import callback'], $type_entities['entities'], $type_entities['revisions']);
+    }
+  }
 }

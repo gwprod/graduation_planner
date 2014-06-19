@@ -79,8 +79,16 @@ function graduation_planner_plan_menu() {
     'access arguments' => array('administer graduation_planner_plan entities'),
     'file' => 'graduation_planner_plan.admin.inc'
   );
+  $menu['user/plan'] = array(
+    'title' => 'My plan',
+    'page callback' => 'graduation_planner_plan_display_plan',
+    'page arguments' => array(),
+    'access callback' => 'graduation_planner_plan_access',
+    'access arguments' => array(array('view own plan', 'has plan')),
+    'type' => MENU_NORMAL_ITEM
+  );
   $menu['plan'] = array(
-    'title' => t('Graduation Plan'),
+    'title' => 'Graduation plan',
     'page callback' => 'graduation_planner_plan_display_plan',
     'page arguments' => array(),
     'access callback' => 'graduation_planner_plan_access',
@@ -136,12 +144,14 @@ function graduation_planner_plan_menu() {
     'delivery callback' => '_print_pdf',
     'page callback' => 'graduationa_planner_plan_display_plan_pdf',
     'page arguments' => array(1),
+    'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
   $menu['plan/%graduation_planner_plan/substitutions'] = array(
     'title' => t('Course substitutions'),
     'page callback' => 'graduationa_planner_plan_course_substitutions',
     'page arguments' => array(1),
+    'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
   $menu['plan/%graduation_planner_plan/%/%'] = array(
@@ -324,6 +334,7 @@ function graduation_planner_plan_delete_form($form, &$form_state, $plan) {
 
   // A markup element which displays a warning.
   $form['warning'] = array(
+    '#type' => 'item',
     '#markup' => t('Do you really want to delete this plan?')
   );
 
@@ -841,14 +852,15 @@ function graduation_planner_plan_course_edit_form($form, &$form_state, $plan, $c
       '#type' => 'textfield',
       '#title' => t('Course title'),
       '#default_value' => $course_title,
-      '#validation_function' => array('_validate_course_name'),
+      //'#element_validate' => array('_validate_course_name'),
       '#weight' => -1000,
       '#description' => t('Editing this field will create a course substitution record, proceed with caution.')
     );
     $form['course']['course_units'] = array(
       '#type' => 'textfield',
+      '#required' => TRUE,
       '#title' => t('Course Units'),
-      '#validation_function' => array('_validate_course_units'),
+      '#element_validate' => array('_validate_course_units'),
       '#default_value' => isset($course_units) ? $course_units : '',
     );
   }
@@ -1123,7 +1135,7 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = false, $di
 }
 
 function graduation_planner_plan_change_form($form, &$form_state, $plan) {
-  $form['#action'] = '/plan/' . $plan->plan_id;
+  //$form['#action'] = '/plan/' . $plan->plan_id;
   $form['plan_id'] = array(
     '#type' => 'hidden',
     '#value' => $plan->plan_id
@@ -1380,7 +1392,7 @@ function _graduation_planner_format_annotations($plan) {
         '
       <div class="content-messages block" id="content-messages">
         <div class="content-messages-inner gutter" id="content-messages-inner">
-          <div class="messages error">' . $block_annotations . '</div></div><!-- /content-messages-inner -->
+          <div class="messages error"><div class="header"><h4>Warning</h4>This plan has the following issues:</div>' . $block_annotations . '</div></div><!-- /content-messages-inner -->
 </div>';
   }
 }
@@ -1394,9 +1406,21 @@ function _graduation_planner_format_annotations($plan) {
  */
 function graduation_planner_plan_display_plan($plan = null) {
 
+  // If no plan is specified, load the plan of the default user
+  if (!isset($plan)) {
+    global $user;
+    $plans = graduation_planner_plan_load_by_user($user);
+    $plan = reset($plans);
+    if(!isset($plan))
+    {
+      drupal_goto('plan/new');
+    }
+    menu_set_active_item('plan/' . $plan->plan_id);
+    menu_tree_set_path('user-menu', 'user/plan');
+  }
   // Add javascript
   drupal_add_js(drupal_get_path('module', 'graduation_planner_class') . '/js/graduation_planner_class.js');
-  drupal_add_js(array('graduation_planner_plan' => array('plan_url' => '/plan/' . $plan->plan_id . '/ajax')), 'setting');
+  drupal_add_js(array('graduation_planner_plan' => array('plan_url' => base_path() . 'plan/' . $plan->plan_id . '/ajax')), 'setting');
 
   // Use the Drupal javascript libraries for ajax, draggable, droppable and sortable
 
@@ -1417,7 +1441,8 @@ function graduation_planner_plan_display_plan($plan = null) {
         'opacity' => .6,
         'background-color' => '#684C31',
       ),
-      'animation' => 'fadeIn',
+      'animation' => 'slideDown',
+      'modalTheme' => 'ModalDialog'
     )
   );
   drupal_add_js($ctools_modal_settings, 'setting');
@@ -1430,12 +1455,7 @@ function graduation_planner_plan_display_plan($plan = null) {
 
   drupal_add_js(drupal_get_path('module', 'graduation_planner_class') . '/js/jquery.ui.touch-punch.min.js');
 
-  // If no plan is specified, load the plan of the default user
-  if (!isset($plan)) {
-    global $user;
-    $plans = graduation_planner_plan_load_by_user($user);
-    $plan = reset($plans);
-  }
+
 
   $planned_units = 0;
   $unplanned_units = 0;
@@ -1830,6 +1850,7 @@ function graduation_planner_plan_form($form, &$form_state, $account = null, $pla
 
   if (!isset($account)) {
     if (isset($plan)) {
+
       $account = user_load($plan->uid);
     }
     else {
@@ -1837,6 +1858,7 @@ function graduation_planner_plan_form($form, &$form_state, $account = null, $pla
       $account = clone $user;
     }
   }
+
   if (isset($plan) || isset($form_state['values']['plan_id'])) {
     drupal_set_message(t('A plan for this user already exists.  Clicking Previous, Next or Save will recreate the plan, except for Completed or In Progress classes.'), 'warning');
     $form['plan_id'] = array(
@@ -3107,24 +3129,24 @@ function _graduation_planner_plan_course_units($planned_class, $plan, $delta) {
   return 0;
 }
 
-function _validate_course_name($element, &$form_state, $form)
-{
-  if(empty($element['#value']))
-  {
-    form_error($element, t('This field is required.'));
-  } elseif (!preg_match("/([A-Z]{2,}\s\d{3})(:\s\w*|\n)/", $element['#value']))
-  {
-    form_error($element, t('Course Name must be in the format [SUBJECT] [NUMBER] with {: [Description]} optional.  Examples: MATH 402 or CS 333: Computer Science'));
-  }
-}
-function _validate_course_units($element, &$form_state, $form) {
+function _validate_course_name($element, &$form_state, $form) {
   if (empty($element['#value'])) {
     form_error($element, t('This field is required.'));
   }
+  elseif (!preg_match("/([A-Z]{2,}\s\d{3})(:\s\w*|\n)/", $element['#value'])) {
+    form_error($element, t('Course Name must be in the format [SUBJECT] [NUMBER] with {: [Description]} optional.  Examples: MATH 402 or CS 333: Computer Science'));
+  }
+}
+
+function _validate_course_units($element, &$form_state, $form) {
+  watchdog('_validate_course_units', print_r($element, TRUE));
+  if (empty($element['#value'])) {
+    form_error($element, t('Course units field is required.'));
+  }
   elseif (!is_numeric($element['#value'])) {
-    form_error($element, t('This field must contain a number'));
+    form_error($element, t('Course units must contain a number'));
   }
   elseif ($element['#value'] < 1 || $element['#value'] > 12) {
-    form_error($element, t('This field must contain a number between 1 and 12'));
+    form_error($element, t('Course units must contain a number between 1 and 12'));
   }
 }
