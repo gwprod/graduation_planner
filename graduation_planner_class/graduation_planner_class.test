@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Test case for graduation_planner_class
+ * Test case for graduation_planner_class.
  */
 
 /**
- * GraduationPlannerClassWebTestCase DrupalWebTestCase
+ * GraduationPlannerClassWebTestCase DrupalWebTestCase.
  */
 class GraduationPlannerClassWebTestCase extends DrupalWebTestCase {
 

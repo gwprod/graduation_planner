@@ -18,6 +18,8 @@
  * @return array
  *   The form array.
  */
-function graduation_planner_class_admin_form($form, &$form_state) {
+function graduation_planner_class_admin_form(array $form, array &$form_state) {
 
+  // TODO:  Put something here.
+  return $form;
 }

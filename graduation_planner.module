@@ -2,7 +2,7 @@
 
 /**
  * @file
- * The base module for Graduation Planner
+ * The base module for Graduation Planner.
  */
 
 /**
@@ -16,16 +16,17 @@ function graduation_planner_views_api() {
  * PDF Delivery Callback.
  *
  * @param array $callback_result
- *   The content to be passed into the delivery callback
+ *   The content to be passed into the delivery callback.
+ * 
+ * @return array
+ *   Return the content as PDF.
  */
-function _graduation_planner_print_pdf($callback_result) {
+function _graduation_planner_print_pdf(array $callback_result) {
 
   // Check that the dompdf library is available.
-
   if (libraries_detect('dompdf') !== FALSE) {
 
     // Load the dompdf library.
-
     $dompdf_path = libraries_get_path('dompdf');
     require_once $dompdf_path . '/dompdf_config.inc.php';
 
@@ -33,7 +34,6 @@ function _graduation_planner_print_pdf($callback_result) {
     $dompdf = new DOMPDF();
 
     // If the callback result constainst the content index...
-
     if (isset($callback_result['content'])) {
 
       // Copy the content value to the content variable.
@@ -48,18 +48,15 @@ function _graduation_planner_print_pdf($callback_result) {
     }
 
     // Load the content into the dompdf object as html.
-
     $dompdf->load_html($content);
 
     // Set the paper of the dompdf document.
-
     $dompdf->set_paper(DOMPDF_DEFAULT_PAPER_SIZE, 'portrait');
 
     // Render the dompdf document as pdf.
     $dompdf->render();
 
     // Stop output buffering.
-
     ob_end_clean();
 
     // If the headers have not been sent.
@@ -70,7 +67,6 @@ function _graduation_planner_print_pdf($callback_result) {
     }
 
     // Cease drupaling.
-
     drupal_exit();
   }
 
@@ -78,7 +74,6 @@ function _graduation_planner_print_pdf($callback_result) {
   else {
 
     // Return the content without processing.
-
     return $callback_result['content'];
   }
 }
@@ -87,7 +82,7 @@ function _graduation_planner_print_pdf($callback_result) {
  * Converts a single year number into an academic year.
  *
  * @param int $year
- *   A single year number
+ *   A single year number.
  *
  * @return string
  *   return the academic year (e.g 2013-2014)
@@ -102,10 +97,10 @@ function graduation_planner_format_year($year) {
  * @todo Refactor the quarters list
  *
  * @param string $quarter_name
- *   The name of a quarter
+ *   The name of a quarter.
  *
  * @return int
- *   The quarter_id
+ *   The quarter_id.
  */
 function graduation_planner_quarter_by_name($quarter_name) {
 
@@ -150,12 +145,12 @@ function graduation_planner_quarter_list() {
  * Gets the graduation_planner variables array, optionally allowing an update.
  *
  * @param array $update
- *   Updated variable
+ *   Updated variable.
  *
  * @return array
  *   The variable data.
  */
-function graduation_planner_variables($update = NULL) {
+function graduation_planner_variables(array $update = NULL) {
 
   // If there is an updated data structure...
   if (isset($update)) {
@@ -200,10 +195,7 @@ function graduation_planner_debug($message) {
 }
 
 /**
- * Blocks available from graduation_planner module.
- *
- * @return array
- *   Return an array of blocks available in Structure > Blocks
+ * Implements hook_block_info().
  */
 function graduation_planner_block_info() {
   return array(
@@ -214,13 +206,7 @@ function graduation_planner_block_info() {
 }
 
 /**
- * Display a block.
- *
- * @param string $delta
- *   The block name to display.
- *
- * @return array
- *   A renderable array of block data.
+ * Implements hook_block_view().
  */
 function graduation_planner_block_view($delta = '') {
   $block = array();
@@ -238,9 +224,9 @@ function graduation_planner_block_view($delta = '') {
  * @param array $edit
  *   Any changes that need to be made to the user at login.
  * @param object $account
- *   The account object of the logged in user
+ *   The account object of the logged in user.
  */
-function graduation_planner_user_login(&$edit, $account) {
+function graduation_planner_user_login(array &$edit, $account) {
   drupal_goto('<front>');
 }
 
@@ -254,7 +240,7 @@ function graduation_planner_user_login(&$edit, $account) {
  * @param string $form_id
  *   The form id of the form to be altered.
  */
-function graduation_planner_form_user_login_alter(&$form, &$form_state, $form_id) {
+function graduation_planner_form_user_login_alter(array &$form, array &$form_state, $form_id) {
 
   // If the form id is for user_login...
   if ($form_id == 'user_login') {
@@ -267,6 +253,14 @@ function graduation_planner_form_user_login_alter(&$form, &$form_state, $form_id
   }
 }
 
+/**
+ * Load the user by their name.
+ * 
+ * @param string $string
+ *    The name of the user.
+ * @return object
+ *    Return a user object, if available. 
+ */
 function graduation_planner_user_load_by_name($string) {
   if (module_exists('realname')) {
     return realname_load_user($string);
@@ -274,6 +268,15 @@ function graduation_planner_user_load_by_name($string) {
   return user_load_by_name($string);
 }
 
+
+/**
+ * Search for autocomplete matches for users, by name.
+ * 
+ * @param string $string
+ *    The string to search for.
+ * @return array
+ *    Autocomplete matches array.
+ */
 function graduation_planner_user_autocomplete($string = '') {
   if (module_exists('realname')) {
     return _graduation_planner_realname_autocomplete($string);
@@ -282,8 +285,13 @@ function graduation_planner_user_autocomplete($string = '') {
   return user_autocomplete($string);
 }
 
+/**
+ * Search the realname table for data.
+ * 
+ * @param string $string
+ *    The string to search for.
+ */
 function _graduation_planner_realname_autocomplete($string = '') {
-
 
   $matches = array();
 
@@ -304,6 +312,9 @@ function _graduation_planner_realname_autocomplete($string = '') {
   drupal_json_output($matches);
 }
 
+/**
+ * Implements hook_menu().
+ */
 function graduation_planner_menu() {
   $items['graduation_planner/export'] = array(
     'page callback' => 'graduation_planner_export',
@@ -348,6 +359,9 @@ function graduation_planner_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_permission().
+ */
 function graduation_planner_permission() {
   return array(
     'administer graduation planner' => array(
@@ -357,6 +371,11 @@ function graduation_planner_permission() {
   );
 }
 
+/**
+ * Export function for graduation_planner.
+ * Sends a file of serialized objects to the client.
+ * 
+ */
 function graduation_planner_export() {
   $data = module_invoke_all('exporter_definition');
   //print_r($data);
@@ -364,23 +383,30 @@ function graduation_planner_export() {
     $aggregate[$entity_type] = graduation_planner_exporter($entity_type, $definition);
   }
 
-
   $file = serialize($aggregate);
-  //print $file;
   $file_name = file_unmanaged_save_data($file, NULL, FILE_EXISTS_REPLACE);
   file_transfer($file_name, array('Content-Type' => 'application/octet-stream',
     'Content-Disposition' => 'attachment; filename="' . 'graduation_planner.export' . '"',
     'Content-Length' => filesize($file_name)));
+  drupal_exit();
 }
 
-function graduation_planner_exporter($entity_type, $definition) {
+/**
+ * Retrieves entities and revisions from the database for export.
+ * 
+ * @param string $entity_type
+ *    The type of the entity.
+ * @param array $definition
+ *    The exporter definition of the entity.
+ * @return array
+ *    Returns an array of entities and revisions.
+ */
+function graduation_planner_exporter($entity_type, array $definition) {
 
   $query = db_select($definition['revision table'], 't');
   $query->fields('t', array($definition['entity keys']['revision']));
   $result = $query->execute();
   $revision_ids = $result->fetchAllAssoc($definition['entity keys']['revision']);
-
-
 
   foreach ($revision_ids as $revision_id => $revision) {
 
@@ -396,7 +422,13 @@ function graduation_planner_exporter($entity_type, $definition) {
   return array('entities' => $entities, 'revisions' => $entity_revisions);
 }
 
-function graduation_planner_importer($entities) {
+/**
+ * Imports entities and revisions into the database.
+ * 
+ * @param array $entities
+ *    The entities to import.
+ */
+function graduation_planner_importer(array $entities) {
   $import_definitions = module_invoke_all('importer_definition');
   foreach ($entities as $type => $type_entities) {
     watchdog('graduation_planner_importer', print_r($type_entities, TRUE));
@@ -435,6 +467,14 @@ function graduation_planner_terms() {
   );
 }
 
+/**
+ * Names of academic terms.
+ * 
+ * @todo Refactor this to graduation_planner.admin.inc
+ * 
+ * @return array
+ *    Return an array of term names.
+ */
 function graduation_planner_get_terms() {
   return array(
     0 => t('Fall Quarter'),
@@ -444,15 +484,17 @@ function graduation_planner_get_terms() {
   );
 }
 
-function graduation_planner_get_term_machine_name($terms) {
+/**
+ * Get machine_names for academic terms.
+ * 
+ * @param array $terms
+ *    Term IDs to retrieve machine names for.
+ * @return array
+ *    Machine names for academic terms.
+ */
+function graduation_planner_get_term_machine_name(array $terms) {
   $terms_array = graduation_planner_terms();
-  /* $terms_array = array(
-    0 => 'fall',
-    1 => 'winter',
-    2 => 'spring',
-    3 => 'summer'
-    ); */
-
+ 
   $output = array();
   foreach ($terms as $term) {
     if (isset($term_array[$term])) {
@@ -479,6 +521,14 @@ function graduation_planner_class_standings() {
   );
 }
 
+/**
+ * Return an array of academic years.
+ * 
+ * @todo This should not be hard-coded.
+ * 
+ * @return array
+ *    Return an array of academic years.
+ */
 function graduation_planner_academic_years()
 {
   return array(
