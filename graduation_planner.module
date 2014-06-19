@@ -99,7 +99,7 @@ function graduation_planner_format_year($year) {
  *
  * @return int
  *   The quarter_id.
- * 
+ *
  * @todo Refactor the quarters list
  */
 function graduation_planner_quarter_by_name($quarter_name) {
@@ -167,12 +167,11 @@ function graduation_planner_variables(array $update = NULL) {
  * Formats a debugging message either as drupal_set_message or watchdog.
  *
  * @param string $message
- *   The debug message to display or store in watchdog
+ *   The debug message to display or store in watchdog.
  */
 function graduation_planner_debug($message) {
 
   // Retrieve the graduation_planner variables.
-
   $variables = graduation_planner_variables();
 
   // If debugging is enabled.
@@ -257,7 +256,7 @@ function graduation_planner_form_user_login_alter(array &$form, array &$form_sta
  *
  * @param string $string
  *    The name of the user.
- * 
+ *
  * @return object
  *    Return a user object, if available.
  */
@@ -274,7 +273,7 @@ function graduation_planner_user_load_by_name($string) {
  *
  * @param string $string
  *    The string to search for.
- * 
+ *
  * @return array
  *    Autocomplete matches array.
  */
@@ -288,7 +287,7 @@ function graduation_planner_user_autocomplete($string = '') {
 
 /**
  * Search the realname table for data.
- * 
+ *
  * @param string $string
  *    The string to search for.
  */
@@ -376,7 +375,6 @@ function graduation_planner_permission() {
  * Export function for graduation_planner.
  *
  * Sends a file of serialized objects to the client.
- *
  */
 function graduation_planner_export() {
   $data = module_invoke_all('exporter_definition');
@@ -386,20 +384,23 @@ function graduation_planner_export() {
 
   $file = serialize($aggregate);
   $file_name = file_unmanaged_save_data($file, NULL, FILE_EXISTS_REPLACE);
-  file_transfer($file_name, array('Content-Type' => 'application/octet-stream',
+  file_transfer($file_name, array(
+    'Content-Type' => 'application/octet-stream',
     'Content-Disposition' => 'attachment; filename="' . 'graduation_planner.export' . '"',
-    'Content-Length' => filesize($file_name)));
+    'Content-Length' => filesize($file_name),
+    )
+  );
   drupal_exit();
 }
 
 /**
  * Retrieves entities and revisions from the database for export.
- * 
+ *
  * @param string $entity_type
  *    The type of the entity.
  * @param array $definition
  *    The exporter definition of the entity.
- * 
+ *
  * @return array
  *    Returns an array of entities and revisions.
  */
@@ -491,7 +492,7 @@ function graduation_planner_get_terms() {
  *
  * @param array $terms
  *    Term IDs to retrieve machine names for.
- * 
+ *
  * @return array
  *    Machine names for academic terms.
  */
@@ -500,8 +501,8 @@ function graduation_planner_get_term_machine_name(array $terms) {
  
   $output = array();
   foreach ($terms as $term) {
-    if (isset($term_array[$term])) {
-      $output[] = $term_array[$term]['machine_name'];
+    if (isset($terms_array[$term])) {
+      $output[] = $terms_array[$term]['machine_name'];
     }
   }
   return $output;
@@ -535,8 +536,8 @@ function graduation_planner_class_standings() {
 function graduation_planner_academic_years()
 {
   return array(
-    2013 => t(graduation_planner_format_year(2013)),
-    2014 => t(graduation_planner_format_year(2014)),
+    2013 => t('@year', array('@year' => graduation_planner_format_year(2013))),
+    2014 => t('@year', array('@year' => graduation_planner_format_year(2014))),
   );
 }
 /**
@@ -544,11 +545,10 @@ function graduation_planner_academic_years()
  *
  * @param string $role_name
  *   The name of the role.
- *
  * @param array $permissions
  *   An array of permissions to grant.
  */
-function _graduation_planner_add_permissions($role_name, $permissions) {
+function _graduation_planner_add_permissions($role_name, array $permissions) {
   $role = user_role_load_by_name($role_name);
   user_role_grant_permissions($role->rid, $permissions);
 }
@@ -557,7 +557,6 @@ function _graduation_planner_add_permissions($role_name, $permissions) {
  *
  * @param string $machine_name
  *   The machine name of the role.
- *
  * @param int $weight
  *   The optional weight.
  */
@@ -566,4 +565,23 @@ function _graduation_planner_add_role($machine_name, $weight = 0) {
   $role->name = $machine_name;
   $role->weight = $weight;
   user_role_save($role);
+}
+
+/*
+ * Implements hook_libraries_info().
+ */
+function graduation_planner_libraries_info()
+{
+  $libraries['jquery.ui.touch-punch'] = array(
+    'name' => 'jQuery UI Touch-Punch',
+    'vendor url' => 'http://example.com/simple',
+    'download url' => 'http://example.com/simple',
+    'version arguments' => array(
+      'file' => 'jquery.ui.touch-punch/jquery.ui.touch-punch.min.js',
+    ),
+    'files' => array(
+      'js' => array('jquery.ui.touch-punch/jquery.ui.touch-punch.min.js'),
+    ),
+  );
+  return $libraries;
 }

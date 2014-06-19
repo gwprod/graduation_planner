@@ -16,6 +16,6 @@
  * @return array
  *   Returns the form array.
  */
-function graduation_planner_plan_admin_form($form, &$form_state) {
+function graduation_planner_plan_admin_form(array $form, array &$form_state) {
   return $form;
 }
