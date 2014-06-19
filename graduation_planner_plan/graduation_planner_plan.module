@@ -284,8 +284,8 @@ function graduation_planner_plan_modal_callback() {
     'ajax' => TRUE,
     'title' => $modal['title'],
     'build_info' => array(
-      'args' => $args
-    )
+      'args' => $args,
+    ),
   );
 
   // Use ctools to generate ajax instructions for the browser to create
@@ -427,11 +427,11 @@ function graduation_planner_plan_display_plan_by_quarter($plan, $year, $quarter)
     '#theme' => 'item_list',
     '#items' => $schedule[$year]['children'][$quarter]['children'],
     '#type' => 'ul',
-    '#title' => t($schedule[$year]['children'][$quarter]['data']),
+    '#title' =>check_plain($schedule[$year]['children'][$quarter]['data']),
     '#attributes' => array('class' => array('graduation_planner_plan')),
   );
 
-  // return the renderable array.
+  // Return the renderable array.
   return $content;
 }
 
@@ -443,8 +443,6 @@ function graduation_planner_plan_display_plan_by_quarter($plan, $year, $quarter)
  * @param array $form_state
  *    The current form state, passed by reference.
  *
- * @return array
- *    An array of ajax commands.
  */
 function graduation_planner_plan_course_edit_form_submit(array $form, array &$form_state) {
 
@@ -513,13 +511,13 @@ function graduation_planner_plan_course_edit_form_submit(array $form, array &$fo
   // Initial assembly of the css classes this course will need.
   $classes = array(
     ($course['course_completed']) ? 'undraggable' : 'draggable',
-    'unplanned'
+    'unplanned',
   );
 
   // Retrieve the quarters this course is available.
   $quarters_available = array_filter(graduation_planner_class_quarters_available_field_data($planned_course));
 
-  // Merge classes for quarters available into css classes array
+  // Merge classes for quarters available into css classes array.
   $classes = array_merge($classes, graduation_planner_get_term_machine_name(array_keys($quarters_available)));
 
   // Create a list item for post to browser.
@@ -706,13 +704,12 @@ function graduation_planner_plan_course_add_form_submit(array $form, array &$for
   // Generate the schedule for the plan.
   $schedule = _graduation_planner_plan_get_schedule($plan);
 
-
   // Create a renderable array, to be passed to theme_item_list.
   $content['plan'] = array(
     '#theme' => 'item_list',
     '#items' => $schedule,
     '#type' => 'ul',
-    '#title' => t(''),
+    '#title' => '',
     '#attributes' => array('id' => 'graduation_planner_plan', 'class' => array('graduation_planner_plan')),
   );
 
@@ -792,14 +789,15 @@ function graduation_planner_plan_course_delete_form_submit(array $form, array &$
   // Generate the schedule for the plan.
   $schedule = _graduation_planner_plan_get_schedule($plan);
 
-
   // Create a renderable array, to be passed to theme_item_list.
   $content['plan'] = array(
     '#theme' => 'item_list',
     '#items' => $schedule,
     '#type' => 'ul',
-    '#title' => t(''),
-    '#attributes' => array('id' => 'graduation_planner_plan', 'class' => array('graduation_planner_plan'))
+    '#title' => '',
+    '#attributes' => array(
+      'id' => 'graduation_planner_plan', 
+      'class' => array('graduation_planner_plan')),
   );
 
   // Create ajax updates to be sent back to the client.
@@ -833,7 +831,7 @@ function graduation_planner_plan_course_edit_form(array $form, array &$form_stat
   // A hidden form element for the plan ID.
   $form['plan_id'] = array(
     '#type' => 'hidden',
-    '#value' => $plan->plan_id
+    '#value' => $plan->plan_id,
   );
 
   // Retrieve the quarter names.
@@ -868,13 +866,13 @@ function graduation_planner_plan_course_edit_form(array $form, array &$form_stat
   // Hidden form element for the plan item delta.
   $form['delta'] = array(
     '#type' => 'hidden',
-    '#value' => $delta
+    '#value' => $delta,
   );
 
   // Course details markup.
   $form['course_id'] = array(
     '#type' => 'hidden',
-    '#value' => $class->class_id
+    '#value' => $class->class_id,
   );
 
   $form['substitute_course'] = array(
@@ -945,7 +943,7 @@ function graduation_planner_plan_course_edit_form(array $form, array &$form_stat
       $form['course_options']['course_section_markup'] = array(
         '#markup' => t('This course has no sections for @term @year', array(
           '@term' => $quarters[$planned_course['course_term']],
-          '@year' => graduation_planner_format_year($planned_course['course_year'])
+          '@year' => graduation_planner_format_year($planned_course['course_year']),
             )
         ),
       );
@@ -956,7 +954,7 @@ function graduation_planner_plan_course_edit_form(array $form, array &$form_stat
     '#type' => 'checkbox',
     '#title' => t('Complete'),
     '#attributes' => array(
-      'class' => array('course_complete')
+      'class' => array('course_complete'),
     ),
     '#default_value' => $planned_course['course_completed']
   );
@@ -964,7 +962,7 @@ function graduation_planner_plan_course_edit_form(array $form, array &$form_stat
   // Submit button.
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save')
+    '#value' => t('Save'),
   );
   // Return the renderable form array.
   return $form;
@@ -1026,14 +1024,15 @@ function _graduation_planner_plan_format_add_course_link($plan, $quarter, $year)
  *
  * @param object $plan
  *    The plan object.
- * @param boolean $display_year
+ * @param bool $display_year
  *    Include the individual year when generating the quarter title.
- * @param boolean $display_link
+ * @param bool $display_link
  *    Create a link to the year/quarter subview.
+ *
  * @return array
  *    An array of scheduling information.
  */
-function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $display_link = FALSE, &$planned_units, &$unplanned_units) {
+function _graduation_planner_plan_get_schedule($plan, &$planned_units, &$unplanned_units, $display_year = FALSE, $display_link = FALSE) {
 
   // Retrieve the names of the quarters.
   $quarters = graduation_planner_get_terms();
@@ -1057,8 +1056,8 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $di
       'children' => array(
         array(
           'data' => t('Placeholder'),
-          'class' => array('empty-placeholder')
-        )
+          'class' => array('empty-placeholder'),
+        ),
       ),
       'class' => array('quarter', 'unplanned', 'connectedSortable'),
       'id' => '0000-unplanned',
@@ -1070,7 +1069,7 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $di
     // If the course has been placed at a specific time in the plan...
     if ($course['course_placed'] == 1) {
 
-      // check that there is an index in the schedule for the year in question.  
+      // check that there is an index in the schedule for the year in question.
       // If there isn't...
       if (!isset($schedule[$course['course_year']])) {
 
@@ -1082,28 +1081,28 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $di
 
         // Since there wasn't a year already provisioned in the array, there 
         // aren't quarters provisioned in the array either, so provision them.
-        // Iterate over the quarters
+        // Iterate over the quarters.
         foreach ($quarters as $quarter_id => $quarter) {
 
-          // Generate the header of this list
+          // Generate the header of this list.
           $quarter_header[$course['course_year']][$quarter_id] = $display_year ? $quarters[$quarter_id] . ' ' . graduation_planner_format_year($course['course_year']) : $quarters[$quarter_id];
           $quarter_header[$course['course_year']][$quarter_id] = $display_link ? l($quarter_header[$course['course_year']][$quarter_id], 'plan/' . $plan->plan_id . '/' . $course['course_year'] . '/' . $quarter_id) : $quarter_header[$course['course_year']][$quarter_id];
 
-          // Provision the quarter list to accept children
+          // Provision the quarter list to accept children.
           $schedule[$course['course_year']]['children'][$quarter_id] = array(
             'data' => '<h3 class="quarter_header">' . $quarter_header[$course['course_year']][$quarter_id] . '</h3>
                             <div class="total_credits"><span class="total_credits">Total Credits: 0</span>' . _graduation_planner_plan_format_add_course_link($plan, $course['course_year'], $quarter_id) . '</div>',
             'children' => array(
               array(
                 'data' => t('Placeholder'),
-                'class' => array('empty-placeholder')
-              )
+                'class' => array('empty-placeholder'),
+              ),
             ),
             'class' => array(
               'quarter', 
               'connectedSortable', 
               implode('', graduation_planner_get_term_machine_name(array($quarter_id)))),
-            'id' => $course['course_year'] . '-' . implode('', graduation_planner_get_term_machine_name(array($quarter_id)))
+            'id' => $course['course_year'] . '-' . implode('', graduation_planner_get_term_machine_name(array($quarter_id))),
           );
         }
       }
@@ -1113,7 +1112,6 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $di
 
       // Generate the view of the class.
       $planned_class_view = graduation_planner_plan_class_view($planned_class, 'list', $plan, $course, $delta);
-
 
       // Get the quarters this class is available.
       $quarters_available = array_filter(graduation_planner_class_quarters_available_field_data($planned_class));
@@ -1127,7 +1125,9 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $di
         'data' => drupal_render($planned_class_view),
         'id' => 'class_' . $planned_class->class_id . '_' . $course['course_year'] . '_' . $course['course_term'] . '_' . $delta,
         'units' => _graduation_planner_plan_course_units($planned_class, $plan, $delta),
-        'class' => array_merge(array(($course['course_completed']) ? 'undraggable' : 'draggable', 'unplanned'
+        'class' => array_merge(array(
+          ($course['course_completed']) ? 'undraggable' : 'draggable', 
+          'unplanned',
             ), graduation_planner_get_term_machine_name(array_keys($quarters_available))),
       );
 
@@ -1179,7 +1179,7 @@ function _graduation_planner_plan_get_schedule($plan, $display_year = FALSE, $di
         'class' => array_merge(
             array(
           ($course['course_completed']) ? 'undraggable' : 'draggable',
-          'unplanned'
+          'unplanned',
             ), _graduation_planner_class_get_terms(array_keys($quarters_available))),
       );
       $unplanned_units += $planned_class->class_units;
@@ -1270,7 +1270,6 @@ function _graduation_planner_plan_change_plan(&$plan, array $plan_changes) {
       if ($changes[$value['course_id']][$change_id]['plan_original_delta'] == $delta) {
         $changes[$value['course_id']][$change_id] += $value;
         if (isset($plan->plan_data['course_substitutions'][$delta])) {
-          //unset($plan->plan_data['course_substitutions'][$delta]);
           $changes[$value['course_id']][$change_id]['substitution'] = $plan->plan_data['course_substitutions'][$delta];
         }
       }
@@ -1299,8 +1298,6 @@ function _graduation_planner_plan_change_plan(&$plan, array $plan_changes) {
 /**
  * The plan change approval form submission function.
  *
- * @global user $user
- *
  * @param array $form
  *    The form array.
  * @param array $form_state
@@ -1317,26 +1314,27 @@ function graduation_planner_plan_change_form_submit(array $form, array &$form_st
  * View function for a class in the context of the plan.
  *
  * @param object $class
- *    The class object to be displayed
+ *    The class object to be displayed.
  * @param string $view_mode
- *    The view mode used when attaching fields
+ *    The view mode used when attaching fields.
  * @param object $plan_course
- *    The individual instance of the class
+ *    The individual instance of the class.
  * @param int $delta
  *    The location of this object in field storage.
  *
  * @return array
- *    A renderable array
+ *    A renderable array.
  */
 function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, $plan_course, $delta) {
 
-  // Initialize the content property of the class as an array
+  // Initialize the content property of the class as an array.
   $class->content = array();
 
-  // Generate the initial content for the class object from GraduationPlannerClass::buildContent
+  // Generate the initial content for the class object from 
+  // GraduationPlannerClass::buildContent.
   $class->content = entity_get_controller($class->type)->buildContent($class, $view_mode);
 
-  // Attach any fields that need to be attached for this view mode
+  // Attach any fields that need to be attached for this view mode.
   $class->content += field_attach_view('graduation_planner_class', $class, $view_mode);
 
   if (isset($plan->plan_data['course_substitutions'][$delta])) {
@@ -1361,14 +1359,14 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
       '#entity_type' => 'graduation_planner_class',
       '#bundle' => $class->type,
       '#attributes' => array(
-        'class' => array('strike-through')
+        'class' => array('strike-through'),
       ),
       '#items' => array(array('value' => graduation_planner_class_title($class))),
       '#formatter' => 'text_default',
       0 => array('#markup' => check_plain(graduation_planner_class_title($class))),
     );
   }
-  // If the plan_course has a section specified, display it
+  // If the plan_course has a section specified, display it.
   if ($plan_course['course_section'] > 0) {
     $class->content['section'] = array(
       '#title' => t('Section'),
@@ -1383,7 +1381,7 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
       '#bundle' => $class->type,
       '#items' => array(array('value' => $plan_course['course_section'])),
       '#formatter' => 'text_default',
-      0 => array('#markup' => $plan_course['course_section'])
+      0 => array('#markup' => $plan_course['course_section']),
     );
   }
   if ($plan_course['course_placed']) {
@@ -1398,12 +1396,12 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
             'ctools-modal-dialog',
             'ui-edit',
           ),
-          'title' => t('Edit course.')
+          'title' => t('Edit course.'),
         ),
         'html' => FALSE,
       ),
       '#access' => user_access('edit any plan'),
-      '#weight' => -1000
+      '#weight' => -1000,
     );
   }
   if (!$plan_course['course_completed']) {
@@ -1418,15 +1416,15 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
             'ctools-modal-dialog',
             'ui-delete',
           ),
-          'title' => t('Delete course from plan.')
+          'title' => t('Delete course from plan.'),
         ),
         'html' => FALSE,
       ),
       '#access' => user_access('edit any plan'),
-      '#weight' => -1001
+      '#weight' => -1001,
     );
   }
-  // Display the current status of the class
+  // Display the current status of the class.
   $class->content['status'] = array(
     '#title' => t('Status'),
     '#theme' => 'field',
@@ -1440,7 +1438,7 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
     '#bundle' => $class->type,
     '#items' => array(array('value' => _graduation_planner_plan_course_status($plan_course))),
     '#formatter' => 'text_default',
-    0 => array('#markup' => _graduation_planner_plan_course_status($plan_course))
+    0 => array('#markup' => _graduation_planner_plan_course_status($plan_course)),
   );
   $annotations = graduation_planner_plan_annotate_plan($plan);
 
@@ -1458,10 +1456,10 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
       '#bundle' => $class->type,
       '#items' => array(array('value' => $annotations[$class->class_id]['view_data'])),
       '#formatter' => 'text_default',
-      0 => array('#markup' => drupal_render($annotations[$class->class_id]['view_data']))
+      0 => array('#markup' => drupal_render($annotations[$class->class_id]['view_data'])),
     );
   }
-  // Prepare the content for rendering
+  // Prepare the content for rendering.
   $class->content += array(
     '#theme' => 'graduation_planner_plan_class__' . $view_mode,
     '#content' => $class->content,
@@ -1469,7 +1467,7 @@ function graduation_planner_plan_class_view($class, $view_mode = 'list', $plan, 
     '#language' => NULL,
   );
 
-  // Return the content
+  // Return the content.
   return $class->content;
 }
 
@@ -1497,10 +1495,8 @@ function _graduation_planner_format_annotations($plan) {
 }
 
 /**
- * Prepare the plan for rendering and display
+ * Prepare the plan for rendering and display.
  *
- * @global user $user
- *    The current logged-in user.
  * @param object $plan
  *    The plan object.
  *
@@ -1509,7 +1505,7 @@ function _graduation_planner_format_annotations($plan) {
  */
 function graduation_planner_plan_display_plan($plan = NULL) {
 
-  // If no plan is specified, load the plan of the default user
+  // If no plan is specified, load the plan of the default user.
   if (!isset($plan)) {
     global $user;
     $plans = graduation_planner_plan_load_by_user($user);
@@ -1528,7 +1524,8 @@ function graduation_planner_plan_display_plan($plan = NULL) {
   drupal_add_js(drupal_get_path('module', 'graduation_planner_class') . '/js/graduation_planner_class.js');
   drupal_add_js(array('graduation_planner_plan' => array('plan_url' => base_path() . 'plan/' . $plan->plan_id . '/ajax')), 'setting');
 
-  // Use the Drupal javascript libraries for ajax, draggable, droppable and sortable
+  // Use the Drupal javascript libraries for ajax, draggable, droppable and 
+  // sortable.
   ctools_include('modal');
   ctools_modal_add_js();
   $ctools_modal_settings = array(
@@ -1547,8 +1544,8 @@ function graduation_planner_plan_display_plan($plan = NULL) {
         'background-color' => '#684C31',
       ),
       'animation' => 'slideDown',
-      'modalTheme' => 'ModalDialog'
-    )
+      'modalTheme' => 'ModalDialog',
+    ),
   );
   drupal_add_js($ctools_modal_settings, 'setting');
   drupal_add_library('system', 'drupal.ajax');
@@ -1563,10 +1560,10 @@ function graduation_planner_plan_display_plan($plan = NULL) {
   $planned_units = 0;
   $unplanned_units = 0;
 
-  // Load the schedule
-  $schedule = _graduation_planner_plan_get_schedule($plan, FALSE, FALSE, $planned_units, $unplanned_units);
+  // Load the schedule.
+  $schedule = _graduation_planner_plan_get_schedule($plan, $planned_units, $unplanned_units, FALSE, FALSE);
 
-  // Format the schedule as an item_list
+  // Format the schedule as an item_list.
   $content['annotations'] = array(
     '#markup' => _graduation_planner_format_annotations($plan),
     '#weight' => -1000,
@@ -1581,11 +1578,14 @@ function graduation_planner_plan_display_plan($plan = NULL) {
     '#theme' => 'item_list',
     '#items' => $schedule,
     '#type' => 'ul',
-    '#title' => t(''),
-    '#attributes' => array('id' => 'graduation_planner_plan', 'class' => array('graduation_planner_plan')),
+    '#title' => '',
+    '#attributes' => array(
+      'id' => 'graduation_planner_plan', 
+      'class' => array('graduation_planner_plan'),
+    ),
   );
 
-  // Return the renderable array
+  // Return the renderable array.
   return $content;
 }
 
@@ -1596,7 +1596,7 @@ function graduation_planner_plan_display_plan($plan = NULL) {
  *    The plan object.
  *
  * @return array
- *    An array of courses by year and quarter
+ *    An array of courses by year and quarter.
  */
 function graduation_planner_plan_get_plan_data($plan) {
   $plan_data = array();
@@ -1614,22 +1614,24 @@ function graduation_planner_plan_get_plan_data($plan) {
  *
  * @param string $step_name
  *    The name of the step.
+ * 
  * @return int
- *    The step ID on found, or FALSE on not found
+ *    The step ID on found, or FALSE on not found.
  */
 function _graduation_planner_plan_get_step_by_name($step_name) {
 
-  // Retrieve the steps in the wizard
+  // Retrieve the steps in the wizard.
   $steps = graduation_planner_form_steps();
 
-  // Iterate over the array, looking for the given step name, returning it if found
+  // Iterate over the array, looking for the given step name, returning it if 
+  // found.
   foreach ($steps as $step_id => $step) {
     if ($step['name'] == $step_name) {
       return $step_id;
     }
   }
 
-  // Name was not found, return FALSE
+  // Name was not found, return FALSE.
   return FALSE;
 }
 
@@ -1637,35 +1639,35 @@ function _graduation_planner_plan_get_step_by_name($step_name) {
  * The steps for the planning wizard.
  *
  * @return array
- *    An array of wizard steps
+ *    An array of wizard steps.
  */
 function graduation_planner_form_steps() {
   return array(
     1 => array(
       'name' => 'basic_info',
       'form' => 'graduation_planner_plan_basic_info_form',
-      'display_name' => t('Basic Info')
+      'display_name' => t('Basic Info'),
     ),
     2 => array(
       'name' => 'gen_ed_info',
       'form' => 'graduation_planner_plan_general_education_form',
-      'display_name' => t('General Education')
+      'display_name' => t('General Education'),
     ),
     3 => array(
       'name' => 'program_info',
       'form' => 'graduation_planner_plan_programs_form',
-      'display_name' => t('Programs')
+      'display_name' => t('Programs'),
     ),
     4 => array(
       'name' => 'program_requirements',
       'form' => 'graduation_planner_plan_program_requirements_form',
-      'display_name' => t('Program Requirements')
+      'display_name' => t('Program Requirements'),
     ),
     5 => array(
       'name' => 'elective_info',
       'form' => 'graduation_planner_plan_electives_form',
-      'display_name' => t('Electives')
-    )
+      'display_name' => t('Electives'),
+    ),
   );
 }
 
@@ -1679,9 +1681,9 @@ function graduation_planner_form_steps() {
  *
  * TODO: Change the name of this function to imply what it actually does.
  * @param object $plan
- *    The plan object, by reference
+ *    The plan object, by reference.
  * @param array $placed
- *    The array of placed classes, by reference
+ *    The array of placed classes, by reference.
  */
 function _graduation_planner_plan_filter_out_incomplete(&$plan, array &$placed) {
   $temp_array = array();
@@ -1715,10 +1717,10 @@ function _graduation_planner_plan_steps_tab_bar(array &$form, array &$form_state
     $form['step-' . $step_info['name']] = array(
       '#type' => 'submit',
       '#name' => 'step-' . $step_info['name'],
-      '#value' => t($step_info['display_name']),
+      '#value' => check_plain($step_info['display_name']),
       '#disabled' => !isset($form_state['step_information'][$step_id]['stored_values']),
       '#submit' => array('graduation_planner_plan_form_direct_submit'),
-      '#limit_validation_errors' => array()
+      '#limit_validation_errors' => array(),
     );
   }
 }
@@ -1751,12 +1753,12 @@ function graduation_planner_plan_annotate_plan($plan) {
     $plan_data = graduation_planner_plan_get_plan_data($plan);
 
     ksort($plan_data);
-    foreach ($plan_data as $year_id => $year_plan) {
-      foreach ($year_plan as $quarter_id => $quarter_plan) {
+    foreach ($plan_data as $year_plan) {
+      foreach ($year_plan as $quarter_plan) {
 
         $quarterly_placed_classes = $placed_classes;
 
-        foreach ($quarter_plan as $course_id => $course) {
+        foreach ($quarter_plan as $course) {
 
           if ($course['course_placed'] == 1) {
 
@@ -1793,21 +1795,20 @@ function graduation_planner_plan_annotate_plan($plan) {
 
             if (count($remaining_requirements) > 0) {
 
-
               $items = array();
               $data = array();
               $required_classes = graduation_planner_class_load_multiple($remaining_requirements);
               foreach ($required_classes as $required_course) {
 
-                $data[] = t(graduation_planner_class_title($required_course));
-                $items[] = array('data' => t(graduation_planner_class_title($required_course)));
+                $data[] = check_plain(graduation_planner_class_title($required_course));
+                $items[] = array('data' => check_plain(graduation_planner_class_title($required_course)));
               }
               $annotations[$plan->plan_id][$course['course_id']] = array(
-                'data' => t(graduation_planner_class_title($course_data) . ' has unmet prerequisites: ' . implode(', ', $data)),
+                'data' => check_plain(graduation_planner_class_title($course_data) . ' has unmet prerequisites: ' . implode(', ', $data)),
                 'view_data' => array(
                   '#theme' => 'item_list',
                   '#items' => $items,
-                  '#title' => t('Unmet Prerequisites'),
+                  '#title' => t('Unmet prerequisites'),
                   '#type' => 'ul',
                   '#attributes' => array('class' => array('error')),
                 ),
@@ -1817,7 +1818,7 @@ function graduation_planner_plan_annotate_plan($plan) {
           else {
             $course_data = graduation_planner_class_load($course['course_id']);
             $annotations[$plan->plan_id][$course['course_id']] = array(
-              'data' => t(graduation_planner_class_title($course_data) . ' is an unplaced required class.')
+              'data' => check_plain(graduation_planner_class_title($course_data) . ' is an unplaced required class.'),
             );
             $unplaced_classes[$course['course_id']] = $course['course_id'];
           }
@@ -1835,8 +1836,8 @@ function graduation_planner_plan_annotate_plan($plan) {
       $annotations[$plan->plan_id][$requirement['class']->class_id] = array(
         'data' =>
         t('@class_name is a missing required class.', array(
-          '@class_name' => check_plain(graduation_planner_class_title($requirement['class']))
-        )) . l('Add to plan', $url, $options),
+          '@class_name' => graduation_planner_class_title($requirement['class']),
+        )) . l(t('Add to plan'), $url, $options),
       );
     }
     if (!isset($plan->approved_uid)) {
@@ -1874,8 +1875,6 @@ function graduation_planner_plan_display_annotations($plan) {
 /**
  * Plan generation function.
  *
- * @global user $user
- *
  * @param array $plan_options
  *    The array of plan options for which to generate the plan.
  * @param object $plan
@@ -1892,7 +1891,7 @@ function graduation_planner_plan_generate_plan(array $plan_options, $plan = NULL
     $plan = entity_get_controller('graduation_planner_plan')->create(array(
       'uid' => $plan_options['basic_info']['plan_owner'],
       'changed_by' => $user->uid,
-      'status' => 1
+      'status' => 1,
     ));
   }
   $plan->plan_base_year = $plan_options['basic_info']['academic_year'];
@@ -1931,7 +1930,6 @@ function graduation_planner_plan_generate_plan(array $plan_options, $plan = NULL
       }
     }
 
-
     $year++;
     $iterations--;
   }
@@ -1947,13 +1945,11 @@ function graduation_planner_plan_generate_plan(array $plan_options, $plan = NULL
 /**
  * Graduation Planner planning wizard.
  *
- * @global user $user
- *
  * @param array $form
  *    The form array.
  * @param array $form_state
  *    The form state, passed by reference.
- * @param user $account
+ * @param object $account
  *    (Optional) The user whose plan is being generated.
  * @param object $plan
  *    (Optional) The plan object being edited, if it exists.
@@ -1978,7 +1974,7 @@ function graduation_planner_plan_form(array $form, array &$form_state, $account 
     drupal_set_message(t('A plan for this user already exists.  Clicking Previous, Next or Save will recreate the plan, except for Completed or In Progress classes.'), 'warning');
     $form['plan_id'] = array(
       '#type' => 'hidden',
-      '#value' => isset($plan->plan_id) ? $plan->plan_id : $form_state['values']['plan_id']
+      '#value' => isset($plan->plan_id) ? $plan->plan_id : $form_state['values']['plan_id'],
     );
   }
 
@@ -2071,7 +2067,8 @@ function graduation_planner_plan_form_direct_submit(array $form, array &$form_st
     else {
       $form_state['values'] = array();
     }
-    $form_state['rebuild'] = TRUE;  // Force rebuild with next step.
+    // Force rebuild with next step.
+    $form_state['rebuild'] = TRUE;  
     return;
   }
 }
@@ -2099,7 +2096,8 @@ function graduation_planner_plan_form_next_submit(array $form, array &$form_stat
     if (isset($form_state['values']['plan_id'])) {
       _graduation_planner_plan_save_plan_options($form_state);
     }
-    $form_state['rebuild'] = TRUE;  // Force rebuild with next step.
+    // Force rebuild with next step.
+    $form_state['rebuild'] = TRUE;  
     return;
   }
 }
@@ -2125,10 +2123,10 @@ function _graduation_planner_plan_save_plan_options(array &$form_state) {
   $form_state['plan_options'] = $plan_options;
   if (isset($form_state['values']['plan_id'])) {
     $original_plan = graduation_planner_plan_load($form_state['values']['plan_id']);
-    $plan = graduation_planner_plan_generate_plan($plan_options, $original_plan);
+    graduation_planner_plan_generate_plan($plan_options, $original_plan);
   }
   else {
-    $plan = graduation_planner_plan_generate_plan($plan_options);
+    graduation_planner_plan_generate_plan($plan_options);
   }
 }
 
@@ -2164,7 +2162,7 @@ function graduation_planner_plan_form_previous_submit(array $form, array &$form_
  * @return array
  *    The form array after submission is complete.
  */
-function graduation_planner_plan_form_submit($form, &$form_state) {
+function graduation_planner_plan_form_submit(array $form, array &$form_state) {
   $current_step = &$form_state['step'];
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
 
@@ -2197,46 +2195,46 @@ function graduation_planner_plan_form_submit($form, &$form_state) {
  *    The form array.
  * @param array $form_state
  *    Form state, passed by reference.
- * @param user $account
+ * @param object $account
  *    The user this plan is for.
- * @param int step_id
+ * @param int $step_id
  *    The current step.
  *
  * @return array
  *    The completed form array.
  */
-function graduation_planner_plan_basic_info_form($form, &$form_state, $account, $step_id) {
+function graduation_planner_plan_basic_info_form(array $form, array &$form_state, $account, $step_id) {
 
   if (isset($form_state['step_information'][$step_id]['stored_values'])) {
     $values = $form_state['step_information'][$step_id]['stored_values'];
   }
   $form['plan_owner'] = array(
     '#type' => 'hidden',
-    '#default_value' => $account->uid
+    '#default_value' => $account->uid,
   );
   $form['academic_year'] = array(
     '#type' => 'select',
     '#options' => graduation_planner_academic_years(),
-    '#title' => t('Academic Year'),
-    '#default_value' => isset($values['academic_year']) ? $values['academic_year'] : 0
+    '#title' => t('Academic year'),
+    '#default_value' => isset($values['academic_year']) ? $values['academic_year'] : 0,
   );
   $form['quarter'] = array(
     '#type' => 'select',
     '#title' => t('Quarter'),
     '#description' => t('The quarter the plan begins'),
     '#options' => graduation_planner_plan_get_terms(),
-    '#default_value' => isset($values['quarter']) ? $values['quarter'] : 0
+    '#default_value' => isset($values['quarter']) ? $values['quarter'] : 0,
   );
   $form['allow_summer'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Allow Summer Quarter'),
-    '#default_value' => isset($values['allow_summer']) ? $values['allow_summer'] : 0
+    '#title' => t('Allow summer quarter'),
+    '#default_value' => isset($values['allow_summer']) ? $values['allow_summer'] : 0,
   );
 
   $form['max_credits'] = array(
     '#type' => 'textfield',
     '#default_value' => isset($values['max_credits']) ? $values['max_credits'] : 18,
-    '#title' => t('Maximum Credits')
+    '#title' => t('Maximum credits'),
   );
   return $form;
 }
@@ -2265,7 +2263,7 @@ function graduation_planner_plan_get_program_options() {
  *    Form state, passed by reference.
  * @param user $account
  *    The user this plan is for.
- * @param int step_id
+ * @param int $step_id
  *    The current step.
  *
  * @return array
@@ -2273,7 +2271,7 @@ function graduation_planner_plan_get_program_options() {
  *
  * @todo allow multiple programs to be selected.
  */
-function graduation_planner_plan_programs_form($form, &$form_state, $user, $step_id) {
+function graduation_planner_plan_programs_form(array $form, array &$form_state, $account, $step_id) {
   if (isset($form_state['step_information'][$step_id]['stored_values'])) {
     $values = $form_state['step_information'][$step_id]['stored_values'];
   }
@@ -2323,15 +2321,15 @@ function graduation_planner_plan_general_education_form(array $form, array &$for
     '#default_value' => isset($values['transfer']) ? $values['transfer'] : 0,
     '#ajax' => array(
       'callback' => 'graduation_planner_plan_general_education_form_ajax',
-      'wrapper' => 'gen-ed-wrapper'
-    )
+      'wrapper' => 'gen-ed-wrapper',
+    ),
   );
   $form['gen_ed'] = array(
     '#tree' => TRUE,
     '#type' => 'fieldset',
     '#title' => t('Gen Eds Previously Completed'),
     '#prefix' => '<div id="gen-ed-wrapper">',
-    '#suffix' => '</div>'
+    '#suffix' => '</div>',
   );
 
   $dta = ($values['transfer'] == 'dta') ? TRUE : FALSE;
@@ -2339,7 +2337,7 @@ function graduation_planner_plan_general_education_form(array $form, array &$for
   foreach ($required_courses as $course) {
     $form['gen_ed'][$course['course']->class_id] = array(
       '#type' => 'checkbox',
-      '#title' => t('@class_title', array('@class_title' => check_plain(graduation_planner_class_title($course['course'])))),
+      '#title' => t('@class_title', array('@class_title' => graduation_planner_class_title($course['course']))),
       '#disabled' => $dta,
       '#default_value' => ($dta || (isset($values['gen_ed'][$course['course']->class_id]) ? $values['gen_ed'][$course['course']->class_id] : FALSE)),
     );
@@ -2371,9 +2369,9 @@ function _graduation_planner_plan_course_completion_status($plan) {
  *    The form array.
  * @param array $form_state
  *    Form state, passed by reference.
- * @param user $account
+ * @param object $account
  *    The user this plan is for.
- * @param int step_id
+ * @param int $step_id
  *    The current step.
  *
  * @return array
@@ -2402,7 +2400,7 @@ function graduation_planner_plan_program_requirements_form(array $form, array &$
   $form['program_requirements'] = array(
     '#tree' => TRUE,
     '#type' => 'fieldset',
-    '#title' => t('Previously Completed Program Requirements')
+    '#title' => t('Previously completed program requirements'),
   );
 
   foreach ($required_courses as $course) {
@@ -2411,15 +2409,15 @@ function graduation_planner_plan_program_requirements_form(array $form, array &$
       if (isset($gen_ed[$course['course']->class_id]) && $gen_ed[$course['course']->class_id] == 1) {
         $default_value = $gen_ed[$course['course']->class_id];
         $locked = TRUE;
-        $title = t(graduation_planner_class_title($course['course'])) . ' [completed Gen Ed requirement]';
+        $title = check_plain(graduation_planner_class_title($course['course'])) . ' [completed Gen Ed requirement]';
       }
-      else if (isset($courses) && $courses[$course['course']->class_id] == 1) {
+      elseif (isset($courses) && $courses[$course['course']->class_id] == 1) {
         $default_value = $courses[$course['course']->class_id];
         $locked = TRUE;
-        $title = t(graduation_planner_class_title($course['course'])) . ' [set completed by advisor]';
+        $title = check_plain(graduation_planner_class_title($course['course'])) . ' [set completed by advisor]';
       }
       else {
-        $title = t(graduation_planner_class_title($course['course']));
+        $title = check_plain(graduation_planner_class_title($course['course']));
         $default_value = isset($values['program_requirements'][$course['course']->class_id]) ? $values['program_requirements'][$course['course']->class_id] : FALSE;
         $locked = FALSE;
       }
@@ -2427,7 +2425,7 @@ function graduation_planner_plan_program_requirements_form(array $form, array &$
         '#type' => 'checkbox',
         '#title' => check_plain($title),
         '#default_value' => $default_value,
-        '#disabled' => $locked
+        '#disabled' => $locked,
       );
     }
   }
@@ -2461,12 +2459,10 @@ function graduation_planner_plan_get_completed(array $plan_options) {
     }
   }
   $temp_major_requirements = graduation_planner_program_get_course_requirements($major, FALSE);
-  //$requirements = array();
+  
   foreach ($temp_major_requirements as $course_id => $requirement) {
     if (isset($major_taken[$course_id]) && $major_taken[$course_id] == 1) {
-      /* if($keep_completed) {
 
-        } */
       $completed[$course_id] = $requirement;
     }
   }
@@ -2486,7 +2482,7 @@ function graduation_planner_plan_get_completed(array $plan_options) {
  * @return array
  *    A chain of required courses.
  */
-function graduation_planner_plan_generate_plan_requirements($plan_options, $keep_completed = FALSE) {
+function graduation_planner_plan_generate_plan_requirements(array $plan_options, $keep_completed = FALSE) {
   $gen_ed = graduation_planner_program_load(2);
   $major = graduation_planner_program_load($plan_options['program_info']['program']);
   $gen_ed_taken = $plan_options['gen_ed_info']['gen_ed'];
@@ -2508,9 +2504,7 @@ function graduation_planner_plan_generate_plan_requirements($plan_options, $keep
 
   foreach ($temp_major_requirements as $course_id => $requirement) {
     if (!isset($major_taken[$course_id]) || $major_taken[$course_id] == 0) {
-      /* if($keep_completed) {
-
-        } */
+      
       $requirements[$course_id] = $requirement;
     }
   }
@@ -2547,7 +2541,7 @@ function graduation_planner_plan_generate_plan_requirements($plan_options, $keep
         'required' => $elective_course->class_required,
         'priority' => 100 * $major->program_id,
         'order' => 100,
-        'place' => 1
+        'place' => 1,
       );
       $electives_generated += $elective_course->class_units;
     }
@@ -2562,7 +2556,7 @@ function graduation_planner_plan_generate_plan_requirements($plan_options, $keep
  * @param array $course_ids
  *    An array of course ids.
  *
- * @return int
+ * @return int  
  *    Return the total number of credits.
  *
  * @todo Account for course substitutions.
@@ -2624,7 +2618,7 @@ function graduation_planner_plan_place_unplaced_classes(&$plan, array &$requirem
           'course_completed' => 0,
           'course_locked' => 0,
           'course_section' => 0,
-          'course_placed' => 0
+          'course_placed' => 0,
         );
         $cumulative_credits += $requirement['units'];
         unset($requirements[$requirement_id]);
@@ -2637,11 +2631,12 @@ function graduation_planner_plan_place_unplaced_classes(&$plan, array &$requirem
  * Determine if any requirements have earlier requirements.
  *
  * @param array $requirements
- *    An array of requirements
- * @return boolean
+ *    An array of requirements.
+ * 
+ * @return bool
  *    True if earlier requirements exist, FALSE otherwise.
  */
-function _graduation_planner_plan_earlier_requirements_remain($requirements) {
+function _graduation_planner_plan_earlier_requirements_remain(array $requirements) {
   foreach ($requirements as $requirement) {
     if ($requirement['place'] < 3) {
       return TRUE;
@@ -2673,12 +2668,11 @@ function _graduation_planner_plan_earlier_requirements_remain($requirements) {
  * @return array
  *    An array of all classes placed this term.
  */
-function graduation_planner_plan_arrange_classes(&$plan, array &$requirements, array &$placed_classes, $available_credits = 15, $quarter_id, $year, &$cumulative_credits, &$log) {
+function graduation_planner_plan_arrange_classes(&$plan, array &$requirements, array &$placed_classes, $available_credits, $quarter_id, $year, &$cumulative_credits, &$log) {
   $placed = array();
   $total_credits = 0;
   $temp_requirements = graduation_planner_plan_filter_by_quarter($requirements, $quarter_id);
   $temp_placed_classes = $placed_classes;
-
 
   foreach ($temp_requirements as $requirement_id => $requirement) {
     $log .= 'Attempting to place ' . graduation_planner_class_title($requirements[$requirement_id]['class']) . "\n";
@@ -2710,12 +2704,10 @@ function graduation_planner_plan_arrange_classes(&$plan, array &$requirements, a
       $can_place &= 0;
     }
 
-
-
     if ($can_place) {
       if (($available_credits - $total_credits) >= $requirement['units']) {
         $temp_placed_classes[$requirement_id] = $requirement_id;
-        //$class_view = graduation_planner_class_view($requirements[$requirement_id]['class'], 'list');
+        
         $plan->field_plan_courses[LANGUAGE_NONE][] = array(
           'course_id' => $requirements[$requirement_id]['class']->class_id,
           'course_term' => $quarter_id,
@@ -2723,7 +2715,7 @@ function graduation_planner_plan_arrange_classes(&$plan, array &$requirements, a
           'course_completed' => 0,
           'course_locked' => 0,
           'course_section' => 0,
-          'course_placed' => 1
+          'course_placed' => 1,
         );
 
         $total_credits += $requirement['units'];
@@ -2753,11 +2745,14 @@ function graduation_planner_plan_arrange_classes(&$plan, array &$requirements, a
  * Helper function for sorting courses by priority.
  *
  * @param array $a
+ *    The left side array.
  * @param array $b
+ *    The right side array.
+ * 
  * @return int
  *    Return 1 if higher priority, -1 if lower priority.
  */
-function graduation_planner_plan_sort_by_order($a, $b) {
+function graduation_planner_plan_sort_by_order(array $a, array $b) {
   if ($a['priority'] == $b['priority']) {
     
   }
@@ -2775,7 +2770,7 @@ function graduation_planner_plan_sort_by_order($a, $b) {
  * @return array
  *    An array of requirements that will fit in this quarter.
  */
-function graduation_planner_plan_filter_by_quarter($requirements, $quarter_id) {
+function graduation_planner_plan_filter_by_quarter(array $requirements, $quarter_id) {
   $required_courses = array();
   $elective_courses = array();
   foreach ($requirements as $requirement_id => $requirement) {
@@ -2792,8 +2787,6 @@ function graduation_planner_plan_filter_by_quarter($requirements, $quarter_id) {
     }
   }
 
-
-
   return $required_courses + $elective_courses;
 }
 
@@ -2805,9 +2798,8 @@ function graduation_planner_plan_filter_by_quarter($requirements, $quarter_id) {
  * @param array $form_state
  *    The form state, passed by reference.
  */
-function graduation_planner_plan_electives_form_validate($form, &$form_state) {
+function graduation_planner_plan_electives_form_validate(array $form, array &$form_state) {
   if ($form_state['values']['total_electives_required_hidden'] > $form_state['values']['electives']['electives_selected_hidden']) {
-    //form_set_error('electives', "You require " . $form_state['values']['total_electives_required_hidden'] . " units of electives.  You chose " . $form_state['values']['electives']['electives_selected_hidden']);
   }
 }
 
@@ -2830,16 +2822,16 @@ function graduation_planner_plan_electives_form(array $form, array &$form_state,
 
   $form['total_electives_required'] = array(
     '#type' => 'item',
-    '#markup' => t('Total Elective Credits Required: ' . $program->elective_credits)
+    '#markup' => t('Total elective credits required: @credits', array('@credits' => $program->elective_credits)),
   );
   $form['total_electives_required_hidden'] = array(
     '#type' => 'hidden',
-    '#value' => $program->elective_credits
+    '#value' => $program->elective_credits,
   );
   $form['electives_completed'] = array(
     '#type' => 'textfield',
     '#default_value' => 0,
-    '#title' => t('Electives Completed:')
+    '#title' => t('Electives Completed:'),
   );
   if (isset($program->options['allow_choose_electives']) && $program->options['allow_choose_electives']) {
     $electives = graduation_planner_program_get_elective_options($program);
@@ -2848,12 +2840,12 @@ function graduation_planner_plan_electives_form(array $form, array &$form_state,
       '#type' => 'container',
       '#prefix' => '<div id="electives-wrapper">',
       '#suffix' => '</div>',
-      '#tree' => TRUE
+      '#tree' => TRUE,
     );
     $form['electives']['elective_options'] = array(
-      '#tree' => TRUE
+      '#tree' => TRUE,
     );
-    unset($form_state['input']['electives']['elective_options']);
+    unset($form_state['values']['electives']['elective_options']);
     $electives_selected = array();
 
     if (isset($form_state['values']['electives']['elective_options'])) {
@@ -2862,7 +2854,7 @@ function graduation_planner_plan_electives_form(array $form, array &$form_state,
         $electives_selected[$class_id] = array(
           'name' => graduation_planner_class_title($electives[$class_id]),
           'value' => $value,
-          'locked' => 0
+          'locked' => 0,
         );
       }
       foreach ($electives_selected as $elective_id => $elective_selected) {
@@ -2874,7 +2866,7 @@ function graduation_planner_plan_electives_form(array $form, array &$form_state,
               $elective_requirements[$requirement_key] = array(
                 'name' => graduation_planner_class_title($electives[$requirement_key]),
                 'locked' => 1,
-                'value' => 1
+                'value' => 1,
               );
             }
           }
@@ -2886,22 +2878,22 @@ function graduation_planner_plan_electives_form(array $form, array &$form_state,
     foreach ($electives as $elective) {
       $form['electives']['elective_options'][$elective->class_id] = array(
         '#type' => 'checkbox',
-        '#title' => t('@class_title', array('@class_title' => check_plain(graduation_planner_class_title($elective)))),
+        '#title' => t('@class_title', array('@class_title' => graduation_planner_class_title($elective))),
         '#disabled' => isset($electives_selected[$elective->class_id]['locked']) ? $electives_selected[$elective->class_id]['locked'] : 0,
         '#default_value' => isset($electives_selected[$elective->class_id]['value']) ? $electives_selected[$elective->class_id]['value'] : 0,
         '#ajax' => array(
           'callback' => 'graduation_planner_plan_electives_form_ajax',
-          'wrapper' => 'electives-wrapper'
-        )
+          'wrapper' => 'electives-wrapper',
+        ),
       );
     }
     $form['electives']['electives_selected'] = array(
       '#type' => 'item',
-      '#markup' => t('Total electives chosen: ' . _graduation_planner_plan_count_electives_chosen($electives, $electives_selected))
+      '#markup' => t('Total electives chosen: @credits', array('@credits' => _graduation_planner_plan_count_electives_chosen($electives, $electives_selected)))
     );
     $form['electives']['electives_selected_hidden'] = array(
       '#type' => 'hidden',
-      '#value' => _graduation_planner_plan_count_electives_chosen($electives, $electives_selected)
+      '#value' => _graduation_planner_plan_count_electives_chosen($electives, $electives_selected),
     );
   }
   return $form;
@@ -2922,9 +2914,11 @@ function _graduation_planner_plan_course_status($plan_course) {
       case 0:
         return ($plan_course['course_section'] > 0) ? 'In Progress' : 'Planned';
         break;
+      
       case 1:
         return 'Complete';
         break;
+      
     }
   }
   return 'Unplanned';
@@ -2941,7 +2935,7 @@ function _graduation_planner_plan_course_status($plan_course) {
  *
  * @todo Refactor to account for substitute courses.
  */
-function _graduation_planner_plan_count_course_units($courses) {
+function _graduation_planner_plan_count_course_units(array $courses) {
   $units = 0;
   foreach ($courses as $course) {
     $units += $course['class']->class_units;
@@ -2952,15 +2946,17 @@ function _graduation_planner_plan_count_course_units($courses) {
 /**
  * Get the total number of units for the array of electives.
  *
- * @param array $courses
- *    An array of courses.
- *
+ * @param array $electives
+ *    An array of electives.
+ * @param array $electives_selected
+ *    An array of selected electives.
+ * 
  * @return int
  *    A total number of units for the courses.
  *
  * @todo Refactor to account for substitute courses.
  */
-function _graduation_planner_plan_count_electives_chosen($electives, $electives_selected) {
+function _graduation_planner_plan_count_electives_chosen(array $electives, array $electives_selected) {
   $count = 0;
   foreach ($electives_selected as $index => $selected) {
     if ($selected['value'] == 1) {
@@ -3055,7 +3051,7 @@ class GraduationPlannerPlanController extends EntityAPIController {
    *
    * @param array $values
    *    An array of passed values.
-   * @return type
+   * @return mixed
    *    Returns whatever the parent class returns.
    */
   public function create(array $values = array()) {
@@ -3063,13 +3059,13 @@ class GraduationPlannerPlanController extends EntityAPIController {
     $values += array(
       'created' => REQUEST_TIME,
       'changed' => REQUEST_TIME,
-      'type' => 'graduation_planner_plan'
+      'type' => 'graduation_planner_plan',
     );
     return parent::create($values);
   }
 
   /**
-   * Boilerplate Object builder
+   * Boilerplate Object builder.
    *
    * @param object $entity
    *    The entity.
@@ -3079,10 +3075,11 @@ class GraduationPlannerPlanController extends EntityAPIController {
    *    The language code.
    * @param array $content
    *    An array of content previously generated.
-   * @return type
+   * 
+   * @return array
+   *    The renderable array returned by the builder parent.
    */
-  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
-
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, array $content = array()) {
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
@@ -3104,7 +3101,7 @@ function graduation_planner_plan_entity_info() {
     'entity keys' => array(
       'id' => 'plan_id',
       'bundle' => 'type',
-      'revision' => 'revision_id'
+      'revision' => 'revision_id',
     ),
     'bundle keys' => array(
       'bundle' => 'type',
@@ -3138,7 +3135,7 @@ function graduation_planner_plan_entity_info() {
 }
 
 /**
- * Gets the default URI
+ * Gets the default URI.
  *
  * @param object $plan
  *    The plan object.
@@ -3147,7 +3144,7 @@ function graduation_planner_plan_entity_info() {
  *    Returns an URI array.
  */
 function graduation_planner_plan_uri($plan) {
-  return array('path' => 'plan/' . $plan->identifier());  // identifier() returns the id key defined in graduation_planner_plan_entity_info in the last section
+  return array('path' => 'plan/' . $plan->identifier());  
 }
 
 /**
@@ -3161,7 +3158,7 @@ function graduation_planner_plan_uri($plan) {
  * @return array
  *    An array of plans.
  *
- * @todo  Refactor to allow for multiple concurrent plans.
+ * @todo Refactor to allow for multiple concurrent plans.
  */
 function graduation_planner_plan_load_by_user($user, $department = NULL) {
   if (isset($department)) {
@@ -3178,7 +3175,6 @@ function graduation_planner_plan_load_by_user($user, $department = NULL) {
 /**
  * Graduation Planner Plan access callback.
  *
- * @global user $user
  *
  * @param mixed $permission
  *    An string permission, or an array of string permissions.
@@ -3204,33 +3200,73 @@ function graduation_planner_plan_access($permission, $entity = NULL) {
       case 'view own plan':
         $access = graduation_planner_plan_access('view any plan') || (user_access('view own plan') && $entity->uid = $user->uid);
         break;
+      
       case 'has plan':
         $access = count(graduation_planner_plan_load_by_user($user)) > 0;
         break;
+      
       case 'view any plan':
         $access = user_access('view any plan');
         break;
+      
       case 'edit plan':
         $access = user_access('edit any plan') || (user_access('edit own plan') && $entity->uid == $user->uid);
         break;
+      
       default:
         $access = FALSE;
         break;
+      
     }
   }
   return $access;
 }
 
+/**
+ * Graduation Planner Plan loading function.
+ * 
+ * @param int $plan_id
+ *    The plan id to search for.
+ * @param bool $reset
+ *    Reset the static cache.
+ * 
+ * @return object
+ *    The plan object, if found.
+ */
 function graduation_planner_plan_load($plan_id, $reset = FALSE) {
   $plan_ids = (isset($plan_id) ? array($plan_id) : array());
   $plan = graduation_planner_plan_load_multiple($plan_ids, array(), $reset);
   return $plan ? reset($plan) : FALSE;
 }
 
-function graduation_planner_plan_load_multiple($plan_ids = array(), $conditions = array(), $reset = FALSE) {
+/**
+ * Graduation Planner Plan multiple loading function.
+ * 
+ * @param array $plan_ids
+ *    An array of plan ids.
+ * @param array $conditions
+ *    An array of conditions to filter by.
+ * @param bool $reset
+ *    Reset the static cache.
+ * 
+ * @return array
+ *    Return an array of entities.
+ */
+function graduation_planner_plan_load_multiple(array $plan_ids = array(), array $conditions = array(), $reset = FALSE) {
   return entity_load('graduation_planner_plan', $plan_ids, $conditions, $reset);
 }
 
+/**
+ * Plan view function.
+ * 
+ * @param object $plan
+ *    The plan object.
+ * @param string $view_mode
+ *    The view mode.
+ * 
+ * @return array
+ *    A renderable content array.
+ */
 function graduation_planner_plan_view($plan, $view_mode = 'full') {
   $plan->content = array();
   $plan->content = entity_get_controller($plan->type)->buildContent($plan, $view_mode);
@@ -3250,6 +3286,9 @@ function graduation_planner_plan_view($plan, $view_mode = 'full') {
   return $plan->content;
 }
 
+/**
+ * Implements hook_theme().
+ */
 function graduation_planner_plan_theme($existing, $type, $theme, $path) {
   return array
     (
@@ -3266,6 +3305,9 @@ function graduation_planner_plan_theme($existing, $type, $theme, $path) {
   );
 }
 
+/**
+ * Implements hook_permission().
+ */
 function graduation_planner_plan_permission() {
   return array(
     'create plan' => array(
@@ -3291,6 +3333,9 @@ function graduation_planner_plan_permission() {
   );
 }
 
+/**
+ * Implements hook_block_info().
+ */
 function graduation_planner_plan_block_info() {
   return array(
     'plan_data' => array(
@@ -3300,12 +3345,15 @@ function graduation_planner_plan_block_info() {
   );
 }
 
+/**
+ * Implements hook_block_view().
+ */
 function graduation_planner_plan_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'plan_data':
       if (user_is_logged_in() && !user_is_anonymous()) {
-        $block['subject'] = t('My Plan');
+        $block['subject'] = t('My plan');
         $block['content'] = graduation_planner_plan_my_plan();
       }
       break;
@@ -3313,6 +3361,12 @@ function graduation_planner_plan_block_view($delta = '') {
   return $block;
 }
 
+/**
+ * Retrieve the plans belonging to the logged-in user.
+ * 
+ * @return array
+ *    A renderable array.
+ */
 function graduation_planner_plan_my_plan() {
   global $user;
   $query = db_select('graduation_planner_plan', 'gpp');
@@ -3341,10 +3395,26 @@ function graduation_planner_plan_my_plan() {
   return $content;
 }
 
+/**
+ * Displays plan progress.
+ * 
+ * @param object $plan
+ *    The plan object.
+ * @return string
+ *    The progress report.
+ */
 function graduation_planner_plan_progress_view($plan) {
   return t('Not Available');
 }
 
+/**
+ * Returns the status of the plan in text.
+ * 
+ * @param object $plan
+ *    The plan object.
+ * @return string
+ *    The status of the plan.
+ */
 function graduation_planner_plan_status($plan) {
   $status = '';
   if (isset($plan->approved_uid)) {
@@ -3357,12 +3427,28 @@ function graduation_planner_plan_status($plan) {
   return $status;
 }
 
+/**
+ * The title of the program.
+ * 
+ * @param object $plan
+ *    The plan object.
+ * @return string
+ *    The title of the program the plan belongs to.
+ */
 function graduation_planner_plan_detailed_title($plan) {
   $program = graduation_planner_program_load($plan->plan_data['program_info']['program']);
   $title = graduation_planner_program_title($program) . ' ' . graduation_planner_format_year($plan->plan_data['basic_info']['academic_year']);
   return $title;
 }
 
+/**
+ * A page displaying all course substitutions approved by the advisor.
+ * 
+ * @param object $plan
+ *    The plan object.
+ * @return array
+ *    A renderable array of the course substitutions.
+ */
 function graduation_planner_plan_course_substitutions($plan) {
   $rows = array();
   if (isset($plan->plan_data['course_substitutions'])) {
@@ -3392,6 +3478,14 @@ function graduation_planner_plan_course_substitutions($plan) {
   return $content;
 }
 
+/**
+ * 
+ * 
+ * @param object $planned_class
+ * @param object $plan
+ * @param int $delta
+ * @return int
+ */
 function _graduation_planner_plan_course_units($planned_class, $plan, $delta) {
   if (!isset($plan->plan_data['course_substitutions'][$delta])) {
     return $planned_class->class_units;
