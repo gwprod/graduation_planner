@@ -162,7 +162,7 @@ function graduation_planner_program_view($program, $view_mode = 'full') {
  * @return array
  *   Return an array of electives.
  */
-function _placeholder_electives_list($program) {
+function _graduation_planner_program_placeholder_electives_list($program) {
   $options = &drupal_static(__FUNCTION__);
   if (!isset($options[$program->program_id])) {
     $options[$program->program_id] = array();
@@ -579,7 +579,7 @@ function graduation_planner_program_get_course_requirements_multiple($programs =
   }
 
   // Sort the course requirements by priority.
-  usort($course_requirements, '_sort_by_order');
+  usort($course_requirements, '_graduation_planner_program_sort');
 
   // If create_chain is true...
   if ($create_chain) {
@@ -656,7 +656,7 @@ function graduation_planner_program_create_chain($requirements, $include_prerequ
  * @return int
  *   Return -1 if less, 1 if more
  */
-function _sort_by_order($a, $b) {
+function _graduation_planner_program_sort($a, $b) {
   if ($a['priority'] == $b['priority']) {
 
   }
@@ -704,7 +704,7 @@ function graduation_planner_program_form($form, &$form_state, $department, $prog
   $form['program_type'] = array(
     '#type' => 'select',
     '#title' => t('Program type'),
-    '#options' => _get_program_types(),
+    '#options' => _graduation_planner_program_program_type_long_names(),
     '#default_value' => isset($program->program_type) ? $program->program_type : 0
   );
 
@@ -751,7 +751,7 @@ function graduation_planner_program_form($form, &$form_state, $department, $prog
     '#type' => 'select',
     '#title' => t('Placeholder elective'),
     '#empty_option' => t('-- Select --'),
-    '#options' => _placeholder_electives_list($program),
+    '#options' => _graduation_planner_program_placeholder_electives_list($program),
     '#default_value' => isset($program->options['placeholder_elective']) ? $program->options['placeholder_elective'] : 0,
     '#required' => TRUE,
     '#description' => t('The class that will be placed in the plan to account for unplaced electives. (This may need to be created)')
@@ -825,7 +825,7 @@ function graduation_planner_program_form_submit($form, &$form_state) {
  * Gets a list of long names for the program types.
  */
 
-function _get_program_types() {
+function _graduation_planner_program_program_type_long_names() {
   // graduation_planner_program_program_types function is called which gets
   // the program types.
   $types = graduation_planner_program_program_types();

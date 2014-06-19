@@ -215,11 +215,11 @@ function graduation_planner_department_install() {
     'view own department',
   );
 
-  _add_role('department_administrator');
-  _add_role('department_advisor');
+  _graduation_planner_add_role('department_administrator');
+  _graduation_planner_add_role('department_advisor');
 
-  _add_permissions('department_administrator', $department_administrator_permissions);
-  _add_permissions('department_advisor', $department_advisor_permissions);
+  _graduation_planner_add_permissions('department_administrator', $department_administrator_permissions);
+  _graduation_planner_add_permissions('department_advisor', $department_advisor_permissions);
   db_query("
 INSERT INTO {graduation_planner_department} (`department_id`, `revision_id`, `long_name`, `short_name`, `description`, `created`, `changed`, `type`) VALUES
 (3, 3, 'Computer Science', 'CS', 'Computer Science', 1384670657, 1384670657, 'graduation_planner_department'),
@@ -245,33 +245,9 @@ function graduation_planner_department_uninstall() {
   user_role_delete('department_advisor');
 }
 
-/**
- * Add a new role.
- *
- * @param string $machine_name
- *   The machine name of the role.
- * @param int $weight
- *   The optional weight.
- */
-function _add_role($machine_name, $weight = 0) {
-  $role = new stdClass();
-  $role->name = $machine_name;
-  $role->weight = $weight;
-  user_role_save($role);
-}
 
-/**
- * Adds permissions to a role.
- *
- * @param string $role_name
- *   The name of the role.
- * @param array $permissions
- *   An array of permissions to grant.
- */
-function _add_permissions($role_name, $permissions) {
-  $role = user_role_load_by_name($role_name);
-  user_role_grant_permissions($role->rid, $permissions);
-}
+
+
 
 /**
  * Implements hook_update_N().

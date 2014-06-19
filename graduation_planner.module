@@ -18,7 +18,7 @@ function graduation_planner_views_api() {
  * @param array $callback_result
  *   The content to be passed into the delivery callback
  */
-function _print_pdf($callback_result) {
+function _graduation_planner_print_pdf($callback_result) {
 
   // Check that the dompdf library is available.
 
@@ -92,7 +92,7 @@ function _print_pdf($callback_result) {
  * @return string
  *   return the academic year (e.g 2013-2014)
  */
-function format_year($year) {
+function graduation_planner_format_year($year) {
   return $year . ' - ' . ++$year;
 }
 
@@ -276,13 +276,14 @@ function graduation_planner_user_load_by_name($string) {
 
 function graduation_planner_user_autocomplete($string = '') {
   if (module_exists('realname')) {
-    return _realname_autocomplete($string);
+    return _graduation_planner_realname_autocomplete($string);
   }
   module_load_include('inc', 'user', 'pages');
   return user_autocomplete($string);
 }
 
-function _realname_autocomplete($string = '') {
+function _graduation_planner_realname_autocomplete($string = '') {
+
 
   $matches = array();
 
@@ -363,7 +364,7 @@ function graduation_planner_export() {
     $aggregate[$entity_type] = graduation_planner_exporter($entity_type, $definition);
   }
 
-  
+
   $file = serialize($aggregate);
   //print $file;
   $file_name = file_unmanaged_save_data($file, NULL, FILE_EXISTS_REPLACE);
@@ -403,4 +404,111 @@ function graduation_planner_importer($entities) {
       call_user_func($import_definitions[$type]['import callback'], $type_entities['entities'], $type_entities['revisions']);
     }
   }
+}
+
+/**
+ * Get a list of quarters.
+ *
+ * @todo Refactor
+ *
+ * @return array
+ *   Return an array of quarter information.
+ */
+function graduation_planner_terms() {
+  return array(
+    0 => array(
+      'machine_name' => 'fall',
+      'value' => t('fall'),
+    ),
+    1 => array(
+      'machine_name' => 'winter',
+      'value' => t('winter'),
+    ),
+    2 => array(
+      'machine_name' => 'spring',
+      'value' => t('spring'),
+    ),
+    3 => array(
+      'machine_name' => 'summer',
+      'value' => t('summer'),
+    ),
+  );
+}
+
+function graduation_planner_get_terms() {
+  return array(
+    0 => t('Fall Quarter'),
+    1 => t('Winter Quarter'),
+    2 => t('Spring Quarter'),
+    3 => t('Summer Quarter')
+  );
+}
+
+function graduation_planner_get_term_machine_name($terms) {
+  $terms_array = graduation_planner_terms();
+  /* $terms_array = array(
+    0 => 'fall',
+    1 => 'winter',
+    2 => 'spring',
+    3 => 'summer'
+    ); */
+
+  $output = array();
+  foreach ($terms as $term) {
+    if (isset($term_array[$term])) {
+      $output[] = $term_array[$term]['machine_name'];
+    }
+  }
+  return $output;
+}
+
+/**
+ * List of possible class standings.
+ *
+ * @todo Refactor to admin form.
+ *
+ * @return array
+ *   Returns an array of class standings.
+ */
+function graduation_planner_class_standings() {
+  return array(
+    0 => t('None'),
+    45 => t('Sophomore'),
+    90 => t('Junior'),
+    135 => t('Senior'),
+  );
+}
+
+function graduation_planner_academic_years()
+{
+  return array(
+    2013 => t(graduation_planner_format_year(2013)),
+    2014 => t(graduation_planner_format_year(2014))
+  );
+}
+/**
+ * Adds permissions to a role.
+ *
+ * @param string $role_name
+ *   The name of the role.
+ * @param array $permissions
+ *   An array of permissions to grant.
+ */
+function _graduation_planner_add_permissions($role_name, $permissions) {
+  $role = user_role_load_by_name($role_name);
+  user_role_grant_permissions($role->rid, $permissions);
+}
+/**
+ * Add a new role.
+ *
+ * @param string $machine_name
+ *   The machine name of the role.
+ * @param int $weight
+ *   The optional weight.
+ */
+function _graduation_planner_add_role($machine_name, $weight = 0) {
+  $role = new stdClass();
+  $role->name = $machine_name;
+  $role->weight = $weight;
+  user_role_save($role);
 }

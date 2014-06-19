@@ -2,21 +2,21 @@
 
 /**
  * @file
- * Field include file for graduation_planner_class
+ * Field include file for graduation_planner_class.
  */
 
 /**
  * Utility function to determine if this field value is empty.
  *
  * @param array $item
- *   The item array
+ *   The item array.
  * @param array $field
- *   The field array
+ *   The field array.
  *
  * @return bool
  *   Returns whether or not the field is empty
  */
-function graduation_planner_class_field_is_empty($item, $field) {
+function graduation_planner_class_field_is_empty(array $item, array $field) {
 
   // Based on the field type, choose the method of determining emptiness.
   switch ($field['type']) {
@@ -34,7 +34,6 @@ function graduation_planner_class_field_is_empty($item, $field) {
   }
 
   // Otherwise, return false.
-
   return FALSE;
 }
 
@@ -138,14 +137,13 @@ function graduation_planner_class_field_formatter_info() {
  * @param array $items
  *   An array of items.
  * @param string $display
- *   The display type
+ *   The display type.
  *
  * @return array
  *   The modified element
  */
-function graduation_planner_class_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+function graduation_planner_class_field_formatter_view($entity_type, $entity, array $field, array $instance, $langcode, array $items, $display) {
   $element = array();
-  $settings = $display['settings'];
 
   switch ($display['type']) {
     case 'graduation_planner_class_course_requirement_formatter':
@@ -153,7 +151,6 @@ function graduation_planner_class_field_formatter_view($entity_type, $entity, $f
       // Common case: each value is displayed individually in a sub-element
       // keyed by delta. The field.tpl.php template specifies the markup
       // wrapping each value.
-
       foreach ($items as $delta => $item) {
         $class = graduation_planner_class_load($item['course_id']);
         $element[$delta] = array('#markup' => graduation_planner_class_title($class));
@@ -164,7 +161,6 @@ function graduation_planner_class_field_formatter_view($entity_type, $entity, $f
 
       // More elaborate formatters can defer to a theme function for easier
       // customization.
-
       foreach ($items as $delta => $item) {
         $quarters = array(
           !empty($item['fall_quarter']) ? t('Fall') : NULL,
@@ -190,7 +186,7 @@ function graduation_planner_class_field_formatter_view($entity_type, $entity, $f
  * @return array
  *   The class options available.
  */
-function graduation_planner_class_get_class_options($exclude = array()) {
+function graduation_planner_class_get_class_options(array $exclude = array()) {
 
   // Use the advanced drupal_static pattern for caching across the request.
   $options = &drupal_static(__FUNCTION__);
@@ -227,8 +223,8 @@ function graduation_planner_class_get_class_options($exclude = array()) {
  * @param array $form_state
  *   The current form_state, passed by reference.
  */
-function _course_requirement_widget_validate($element, &$form_state) {
-  watchdog('_course_requirement_widget_validate', print_r($form_state, TRUE));
+function _graduation_planner_class_course_requirement_widget_validate(array $element, array &$form_state) {
+  watchdog('_graduation_planner_class_course_requirement_widget_validate', print_r($form_state, TRUE));
 }
 
 /**
@@ -261,7 +257,7 @@ function _course_requirement_widget_validate($element, &$form_state) {
  * @return array
  *   The modified form element.
  */
-function graduation_planner_class_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $base_element) {
+function graduation_planner_class_field_widget_form(array &$form, array &$form_state, array $field, array $instance, $langcode, array $items, $delta, $base_element) {
 
   $element = $base_element;
   switch ($instance['widget']['type']) {
@@ -277,7 +273,7 @@ function graduation_planner_class_field_widget_form(&$form, &$form_state, $field
         '#prefix' => '<div class="text-full-wrapper">',
         '#title' => t('Course requirement'),
         '#options' => graduation_planner_class_get_class_options(),
-        '#element_validate' => array('_course_requirement_widget_validate'),
+        '#element_validate' => array('_graduation_planner_class_course_requirement_widget_validate'),
         '#suffix' => '</div>',
       );
 
@@ -292,7 +288,7 @@ function graduation_planner_class_field_widget_form(&$form, &$form_state, $field
 
       $element += array(
         '#type' => 'fieldset',
-        '#title' => t('@title', array('@title' => check_plain($element['#title']))),
+        '#title' => t('@title', array('@title' => $element['#title'])),
       );
       $element['fall_quarter'] = array(
         '#type' => 'checkbox',

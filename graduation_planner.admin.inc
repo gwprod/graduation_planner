@@ -88,7 +88,7 @@ function graduation_planner_admin_form($form, &$form_state) {
   return $form;
 }
 
-function _validate_terms($element, &$form_state) {
+function _graduation_planner_validate_terms($element, &$form_state) {
   if (isset($form_state['values']['configuration']['global']['terms'])) {
     $terms = $form_state['values']['configuration']['global']['terms'];
     $terms_array = array();

@@ -162,7 +162,7 @@ function graduation_planner_department_form($form, &$form_state, $department = n
   $form['short_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Department Short Name'),
-    '#description' => t('The short name of the deparment (CS for Computer Science, POSC for Political Science, etc)'),
+    '#description' => t('The short name of the department (CS for Computer Science, POSC for Political Science, etc)'),
     '#default_value' => isset($department->short_name) ? $department->short_name : '',
     '#required' => TRUE
   );

@@ -4,30 +4,8 @@
  * @file
  * Graduation Planner Class module file.
  */
-require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_class') . "/graduation_planner_class.field.inc";
 
-/**
- * Retrieves the names of quarters.
- *
- * @param array $quarters
- *   An array of quarter_ids.
- *
- * @return array
- *   Returns an array of quarter values matching the quarter_ids.
- */
-function _get_quarters($quarters) {
-  $quarter_array = array(
-    0 => 'fall',
-    1 => 'winter',
-    2 => 'spring',
-    3 => 'summer',
-  );
-  $output = array();
-  foreach ($quarters as $quarter) {
-    $output[] = $quarter_array[$quarter];
-  }
-  return $output;
-}
+require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_class') . "/graduation_planner_class.field.inc";
 
 /**
  * Get the full title of the class.
@@ -127,7 +105,7 @@ function graduation_planner_class_menu() {
     'access arguments' => array('edit own class', 1),
     'type' => MENU_LOCAL_TASK,
   );
-  
+
   return $menu;
 }
 
@@ -222,35 +200,6 @@ function graduation_planner_class_get_requirements($class) {
 }
 
 /**
- * Get a list of quarters.
- *
- * @todo Refactor
- *
- * @return array
- *   Return an array of quarter information.
- */
-function get_quarters() {
-  return array(
-    0 => array(
-      'machine_name' => 'fall',
-      'value' => t('fall'),
-    ),
-    1 => array(
-      'machine_name' => 'winter',
-      'value' => t('winter'),
-    ),
-    2 => array(
-      'machine_name' => 'spring',
-      'value' => t('spring'),
-    ),
-    3 => array(
-      'machine_name' => 'summer',
-      'value' => t('summer'),
-    ),
-  );
-}
-
-/**
  * Get a paginated list of classes in table format.
  *
  * @param object $department
@@ -268,7 +217,7 @@ function graduation_planner_class_get_classes($department = NULL, $search_term =
   $query = db_select('graduation_planner_class', 'gpc')->extend('PagerDefault');
   $query->leftJoin('graduation_planner_department', 'gpd', 'gpd.department_id = gpc.class_department');
   $query->fields('gpc', array('class_id'));
-  $quarters = get_quarters();
+  $quarters = graduation_planner_terms();
   if ($quarters_available > -1) {
     $query->leftJoin('field_data_field_quarters_available', 'fqa', 'fqa.entity_id=gpc.class_id');
     $query->condition('fqa.field_quarters_available_' . $quarters[$quarters_available]['machine_name'] . '_quarter', 1);
@@ -298,17 +247,17 @@ function graduation_planner_class_get_classes($department = NULL, $search_term =
       ),
     );
   }
-  /*$content['create_class'] = array(
+  /* $content['create_class'] = array(
     '#theme' => 'link',
     '#text' => t('New class'),
     '#path' => 'class/new',
     '#weight' => -100,
     '#options' => array(
-      'attributes' => array('class' => array('button'), 'id' => 'new-class'),
-      'html' => FALSE,
+    'attributes' => array('class' => array('button'), 'id' => 'new-class'),
+    'html' => FALSE,
     ),
     '#access' => graduation_planner_class_access('create class'),
-  );*/
+    ); */
   $content['class_list'] = array(
     '#theme' => 'table',
     '#rows' => $rows,
@@ -773,7 +722,7 @@ function graduation_planner_class_form($form, &$form_state, $class = NULL) {
     '#type' => 'select',
     '#default_value' => isset($class->class_standing) ? $class->class_standing : 0,
     '#title' => t('Required class standing.'),
-    '#options' => _class_standings(),
+    '#options' => graduation_planner_class_standings(),
   );
 
   // Attach fields.
@@ -788,23 +737,6 @@ function graduation_planner_class_form($form, &$form_state, $class = NULL) {
 
   // Return form array.
   return $form;
-}
-
-/**
- * List of possible class standings.
- *
- * @todo Refactor to admin form.
- *
- * @return array
- *   Returns an array of class standings.
- */
-function _class_standings() {
-  return array(
-    0 => t('None'),
-    45 => t('Sophomore'),
-    90 => t('Junior'),
-    135 => t('Senior'),
-  );
 }
 
 /**
@@ -1091,19 +1023,17 @@ function graduation_planner_class_import($entities, $revisions) {
   if (isset($revisions)) {
     foreach ($revisions as $revision) {
       //watchdog('graduation_planner_department', print_r($revision, TRUE));
-     
+
       $original = entity_load('graduation_planner_class', array($revision->class_id));
-      
-      if(empty($original))
-      {
+
+      if (empty($original)) {
         $revision->is_new = TRUE;
         entity_save('graduation_planner_class', $revision);
-        
-      } else {
+      }
+      else {
         $revision->is_new_revision = TRUE;
         entity_save('graduation_planner_class', $revision);
       }
-      
     }
   }
 }
