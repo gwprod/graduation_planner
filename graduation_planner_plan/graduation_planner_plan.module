@@ -3450,6 +3450,7 @@ function graduation_planner_plan_detailed_title($plan) {
  *
  * @param object $plan
  *    The plan object.
+ *
  * @return array
  *    A renderable array of the course substitutions.
  */
@@ -3514,16 +3515,16 @@ function _graduation_planner_plan_course_units($planned_class, $plan, $delta) {
 }
 
 /**
- * Validate that the input is a valid name
+ * Validate that the input is a valid name.
  *
  * @param array $element
  *    An array containing the form element.
  * @param array $form_state
  *    Form state, passed by reference.
  * @param array $form
- *    The form array
+ *    The form array.
  */
-function _graduation_planner_plan_validate_course_name($element, &$form_state, $form) {
+function _graduation_planner_plan_validate_course_name(array $element, array &$form_state, array $form) {
   if (empty($element['#value'])) {
     form_error($element, t('This field is required.'));
   }
@@ -3533,14 +3534,14 @@ function _graduation_planner_plan_validate_course_name($element, &$form_state, $
 }
 
 /**
- * Validate that the input is a valid unit
+ * Validate that the input is a valid unit.
  *
  * @param array $element
  *    An array containing the form element.
  * @param array $form_state
  *    Form state, passed by reference.
  * @param array $form
- *    The form array
+ *    The form array.
  */
 function _graduation_planner_plan_validate_course_units(array $element, array &$form_state, array $form) {
   if (empty($element['#value'])) {
