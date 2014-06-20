@@ -4,6 +4,7 @@
  * @file
  * Graduation Planner Plan module file.
  */
+
 require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_plan') . "/graduation_planner_plan.field.inc";
 
 /**
@@ -33,7 +34,7 @@ function graduation_planner_plan_ajax_callback($plan) {
   $plan_changes = $_POST['changes'];
 
   $validated = _graduation_planner_plan_validate_changes($plan_changes);
-  
+
   // Update the plan with changes.
   // @todo sanitize the changes to make sure no illicit data is being submitted.
   _graduation_planner_plan_change_plan($plan, $plan_changes);
@@ -71,6 +72,7 @@ function graduation_planner_plan_ajax_callback($plan) {
 function graduation_planner_plan_menu() {
   $menu = array();
   $menu['admin/structure/graduation_planner_plan/manage'] = array(
+    'description' => 'Administration page for graduation plans',
     'title' => 'Graduation planner - plan admin',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_plan_admin_form'),
