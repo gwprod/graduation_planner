@@ -52,20 +52,22 @@ function graduation_planner_admin_form($form, &$form_state) {
   );
 
   $form['configuration'] = array(
-    '#tree' => TRUE
+    '#tree' => TRUE,
   );
   $form['configuration']['global'] = array(
     '#type' => 'fieldset',
     '#title' => t('Global configuration'),
     '#tree' => TRUE,
   );
+  $class_standing = $variables['configuration']['global']['class_standing'];
   $form['configuration']['global']['class_standing'] = array(
     '#type' => 'textarea',
     '#title' => t('Class standings.'),
     '#description' => t('Enter class standings, one per line, in the following format: units|standing name.  For instance, 0|Freshman or 45|Senior.  Changing this after initial configuration could have severe ramifications.'),
-    '#default_value' => isset($variables['configuration']['global']['class_standing']) ? $variables['configuration']['global']['class_standing'] : '',
+    '#default_value' => isset($class_standing) ? $class_standing : '',
     '#required' => TRUE,
   );
+  $term_type = $variables['configuration']['global']['term_type'];
   $form['configuration']['global']['term_type'] = array(
     '#type' => 'radios',
     '#title' => t('Term type'),
@@ -73,28 +75,37 @@ function graduation_planner_admin_form($form, &$form_state) {
       'quarter' => t('Quarters'),
       'semester' => t('Semesters'),
     ),
-    '#default_value' => isset($variables['configuration']['global']['term_type']) ? $variables['configuration']['global']['term_type'] : 0,
+    '#default_value' => isset($term_type) ? $term_type : 0,
     '#required' => TRUE,
-    '#description' => t('The type of term used.  Currently supports quarters and semesters.')
+    '#description' => t('The type of term used.  Currently supports quarters and semesters.'),
   );
+
+  $terms = $variables['configuration']['global']['terms'];
   $form['configuration']['global']['terms'] = array(
     '#type' => 'textarea',
     '#title' => t('Terms'),
     '#required' => TRUE,
-    '#default_value' => isset($variables['configuration']['global']['terms']) ? $variables['configuration']['global']['terms'] : '',
-    '#description' => t('Enter terms, one per line, in the following format: <machine_name>|<display_name>.  For instance, summer_semester|Summer Semester or fall_quarter|Fall Quarter.')
+    '#default_value' => isset($terms) ? $terms : '',
+    '#description' => t('Enter terms, one per line, in the following format: <machine_name>|<display_name>.  For instance, summer_semester|Summer Semester or fall_quarter|Fall Quarter.'),
   );
   // Return the form structure.
   return $form;
 }
 
-function _graduation_planner_validate_terms($element, &$form_state) {
+/**
+ * Validate terms to make sure they're valid.
+ *
+ * @param array $element
+ *   The element array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ */
+function _graduation_planner_validate_terms(array $element, array &$form_state) {
   if (isset($form_state['values']['configuration']['global']['terms'])) {
     $terms = $form_state['values']['configuration']['global']['terms'];
     $terms_array = array();
     $temp_term_array = preg_split('', $terms);
-    foreach($temp_term_array as $term)
-    {
+    foreach ($temp_term_array as $term) {
       list($machine_name, $name) = explode('|', $term);
       $terms_array[$machine_name] = $name;
     }
@@ -113,7 +124,7 @@ function _graduation_planner_validate_terms($element, &$form_state) {
  * @param array $form_state
  *   The form state, passed by reference.
  */
-function graduation_planner_admin_form_submit($form, &$form_state) {
+function graduation_planner_admin_form_submit(array $form, array &$form_state) {
 
   // Save the values passed from the admin form into the variables array.
 
@@ -124,10 +135,19 @@ function graduation_planner_admin_form_submit($form, &$form_state) {
   drupal_set_message(t('Graduation Planner settings successfully saved'));
 }
 
-function graduation_planner_admin_import_form($form, &$form_state)
-{
+/**
+ * Form for importing Graduation Planner entities.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ *
+ * @return array
+ *   The complete form array.
+ */
+function graduation_planner_admin_import_form(array $form, array &$form_state) {
   $form['file'] = array(
-    
     '#type' => 'file',
     '#title' => t('Choose a file'),
     '#title_display' => 'invisible',
@@ -136,18 +156,24 @@ function graduation_planner_admin_import_form($form, &$form_state)
     '#description' => t('Upload a file exported by Graduation Planner.  This will delete all entities and users (except User 1)'),
     '#weight' => -10,
   );
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Upload File')
+    '#value' => t('Upload file'),
   );
   return $form;
 }
-function graduation_planner_admin_import_form_validate($form, &$form_state)
-{
-   $file = file_save_upload('file', array(
-    
-    
+
+/**
+ * Import form validation function.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ */
+function graduation_planner_admin_import_form_validate(array $form, array &$form_state) {
+  $file = file_save_upload('file', array(
     // Validate extensions.
     'file_validate_extensions' => array('export'),
   ));
@@ -166,8 +192,16 @@ function graduation_planner_admin_import_form_validate($form, &$form_state)
     form_set_error('file', t('No file was uploaded.'));
   }
 }
-function graduation_planner_admin_import_form_submit($form, &$form_state)
-{
+
+/**
+ * Import form submission function.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ */
+function graduation_planner_admin_import_form_submit($form, &$form_state) {
   $file = $form_state['storage']['file'];
   // We are done with the file, remove it from storage.
   unset($form_state['storage']['file']);
@@ -178,5 +212,4 @@ function graduation_planner_admin_import_form_submit($form, &$form_state)
   $entities = unserialize($loaded_file);
   graduation_planner_importer($entities);
   // Set a response to the user.
-  //drupal_set_message(t('The form has been submitted and the image has been saved, filename: @filename.', array('@filename' => $file->filename)));
 }

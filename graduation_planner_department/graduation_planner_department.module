@@ -3,8 +3,9 @@
 /**
  * @file
  * Graduation Planner Department module.
- *
  */
+
+
 /*
  * Add inc files.
  */
@@ -25,46 +26,84 @@ function graduation_planner_department_title($department) {
 
 class GraduationPlannerDepartment extends Entity {
 
-  //  Since title is the property we will define as the name of our course, this function merely returns that property.
+  /**
+   * Retrieves the name of the department.
+   *
+   * @return string
+   *   The title of the department.
+   */
   protected function defaultLabel() {
     return $this->title;
   }
 
-  //  Identifier() returns the id key defined in graduation_planner_department_entity_info in the last section
+  /**
+   * Retrieves the URI of the department.
+   *
+   * @return array
+   *   A URI array.
+   */
   protected function defaultUri() {
     return array('path' => 'department/' . $this->identifier());
   }
 
 }
 
+/**
+ * GraduationPlannerDepartmentController class.
+ */
 class GraduationPlannerDepartmentController extends EntityAPIController {
 
+  /**
+   * Creation function for GraduationPlannerDepartment objects.
+   *
+   * @param array $values
+   *   An array of values.
+   *
+   * @return object
+   *   A GraduationPlannerDepartment object.
+   */
   public function create(array $values = array()) {
 
     $values += array(
-      //  The name of the course.
+      // The name of the course.
       'short_name' => '',
       'long_name' => '',
-      //  The description of the course.
+      // The description of the course.
       'description' => '',
-      //  When the course was created.  REQUEST_TIME is defined deep in the page-handling functionality as the unix timestamp of the request.
+      // When the course was created.  REQUEST_TIME is defined deep in the
+      // page-handling functionality as the unix timestamp of the request.
       'created' => REQUEST_TIME,
-      //  When the course was last changed.
+      // When the course was last changed.
       'changed' => REQUEST_TIME,
-      //  The bundle type.
-      'type' => 'graduation_planner_department'
+      // The bundle type.
+      'type' => 'graduation_planner_department',
     );
     return parent::create($values);
   }
 
-  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
-    //  Specific display settings.
+  /**
+   * Content builder function for GraduationPlannerDepartment objects.
+   *
+   * @param object $entity
+   *   The GraduationPlannerDepartment object.
+   * @param string $view_mode
+   *   The view mode.
+   * @param string $langcode
+   *   The language code.
+   * @param array $content
+   *   An array of content.
+   *
+   * @return array
+   *   A renderable content array.
+   */
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, array $content = array()) {
+    // Specific display settings.
     $display_info = field_extra_fields_get_display('graduation_planner_department', 'graduation_planner_department', $view_mode);
 
     $content['long_name'] = array(
       '#theme' => 'field',
       '#weight' => $display_info['long_name']['weight'],
-      '#title' => t('Department Name'),
+      '#title' => t('Department name'),
       '#access' => isset($display_info['long_name']['visible']) ? $display_info['long_name']['visible'] : 0,
       '#label_display' => 'above',
       '#view_mode' => $view_mode,
@@ -75,12 +114,12 @@ class GraduationPlannerDepartmentController extends EntityAPIController {
       '#bundle' => $entity->type,
       '#items' => array(array('value' => graduation_planner_department_title($entity))),
       '#formatter' => 'text_default',
-      0 => array('#markup' => check_plain(graduation_planner_department_title($entity)))
+      0 => array('#markup' => check_plain(graduation_planner_department_title($entity))),
     );
     $content['description'] = array(
       '#theme' => 'field',
       '#weight' => $display_info['description']['weight'],
-      '#title' => t('Department Description'),
+      '#title' => t('Department description'),
       '#access' => isset($display_info['description']['visible']) ? $display_info['description']['visible'] : 0,
       '#label_display' => 'above',
       '#view_mode' => $view_mode,
@@ -91,7 +130,7 @@ class GraduationPlannerDepartmentController extends EntityAPIController {
       '#bundle' => $entity->type,
       '#items' => array(array('value' => $entity->description)),
       '#formatter' => 'text_default',
-      0 => array('#markup' => check_plain($entity->description))
+      0 => array('#markup' => check_plain($entity->description)),
     );
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
@@ -99,8 +138,11 @@ class GraduationPlannerDepartmentController extends EntityAPIController {
 
 }
 
+/**
+ * Implements hook_entity_info().
+ */
 function graduation_planner_department_entity_info() {
-  // Entities array
+  // Entities array.
   $entities = array();
   $entities['graduation_planner_department'] = array(
     'label' => t('Graduation Planner - Department'),
@@ -112,7 +154,7 @@ function graduation_planner_department_entity_info() {
     'entity keys' => array(
       'id' => 'department_id',
       'bundle' => 'type',
-      'revision' => 'revision_id'
+      'revision' => 'revision_id',
     ),
     'bundle keys' => array(
       'bundle' => 'type',
@@ -145,32 +187,45 @@ function graduation_planner_department_entity_info() {
   return $entities;
 }
 
-function graduation_planner_department_form($form, &$form_state, $department = null) {
-  //  If there is a department then create department_id form
+/**
+ * The department create/edit form.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ * @param object $department
+ *   The department object.
+ *
+ * @return array
+ *   The completed form.
+ */
+function graduation_planner_department_form(array $form, array &$form_state, $department = NULL) {
+  // If there is a department then create department_id form.
   if (isset($department)) {
     $form['department_id'] = array(
       '#type' => 'hidden',
-      '#value' => $department->department_id
+      '#value' => $department->department_id,
     );
   }
-  //  If not then create a department.
+  // If not then create a department.
   else {
     $department = entity_get_controller('graduation_planner_department')->create();
   }
 
-  //  Short name of the department.
+  // Short name of the department.
   $form['short_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Department Short Name'),
+    '#title' => t('Department short name'),
     '#description' => t('The short name of the department (CS for Computer Science, POSC for Political Science, etc)'),
     '#default_value' => isset($department->short_name) ? $department->short_name : '',
-    '#required' => TRUE
+    '#required' => TRUE,
   );
 
-  //  Full department name.
+  // Full department name.
   $form['long_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Department Long Name'),
+    '#title' => t('Department long name'),
     '#description' => t('The long name of the department (Computer Science, Political Science, Mathematics, etc)'),
     '#default_value' => isset($department->long_name) ? $department->long_name : '',
     '#required' => TRUE,
@@ -179,7 +234,7 @@ function graduation_planner_department_form($form, &$form_state, $department = n
   // Department description.
   $form['description'] = array(
     '#type' => 'textarea',
-    '#title' => t('Department Description'),
+    '#title' => t('Department description'),
     '#description' => t('The description of the department'),
     '#default_value' => isset($department->description) ? $department->description : '',
     '#required' => TRUE,
@@ -187,12 +242,23 @@ function graduation_planner_department_form($form, &$form_state, $department = n
   field_attach_form('graduation_planner_department', $department, $form, $form_state);
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => isset($department->department_id) ? t('Save') : t('Create Department')
+    '#value' => isset($department->department_id) ? t('Save') : t('Create department'),
   );
   return $form;
 }
 
-function graduation_planner_department_form_submit($form, &$form_state) {
+/**
+ * The department create/edit form submission handler.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ *
+ * @return array
+ *   The altered form array.
+ */
+function graduation_planner_department_form_submit(array $form, array &$form_state) {
   if (isset($form_state['values']['department_id'])) {
     $department = graduation_planner_department_load($form_state['values']['department_id']);
     foreach ($form_state['values'] as $property => $value) {
@@ -211,177 +277,223 @@ function graduation_planner_department_form_submit($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Gets an array of department names.
+ *
+ * @return array
+ *   An array of department names.
+ */
 function graduation_planner_department_get_departments() {
-  //  Select department_id from database.
+
+  // Select department_id from database.
   $result = db_query('select department_id from {graduation_planner_department}');
+
   // Return values by department_id keys.
   $department_ids = $result->fetchAllAssoc('department_id');
-  //  Load multiple arrays by department_id.
+
+  // Load multiple arrays by department_id.
   $departments = graduation_planner_department_load_multiple(array_keys($department_ids));
   $output = array();
-  //  Loop through department_ids.
+
+  // Loop through department_ids.
   foreach ($departments as $department) {
     $output[$department->department_id] = $department->long_name;
   }
   return $output;
 }
 
+/**
+ * Get the URI for a department.
+ *
+ * @param object $department
+ *   The department object.
+ *
+ * @return array
+ *   A URI array.
+ */
 function graduation_planner_department_uri($department) {
-  return array('path' => 'department/' . $department->identifier());  // identifier() returns the id key defined in graduation_planner_department_entity_info in the last section
+  return array('path' => 'department/' . $department->identifier());
 }
 
+/**
+ * Get a paged table of departments.
+ *
+ * @return array
+ *   A renderable table of departments.
+ */
 function graduation_planner_department_list_departments() {
-  //  Select graduation_planner_depatment table in the database.
+
+  // Select graduation_planner_depatment table in the database.
   $query = db_select('graduation_planner_department', 'gpd')->extend('PagerDefault');
-  //  Query the department_id.
+
+  // Query the department_id.
   $query->fields('gpd', array('department_id'));
+
   $result = $query->execute();
+
   // Return values by key department_id.
   $department_ids = $result->fetchAllAssoc('department_id');
+
   $departments = graduation_planner_department_load_multiple(array_keys($department_ids));
 
   $rows = array();
-  //  Iterate through array.
+
+  // Iterate through array.
   foreach ($departments as $department) {
     $uri = $department->uri();
     $rows[] = array(
       'data' => array(
         'department_name' => l($department->long_name, $uri['path']),
-        'department_description' => $department->description
-      )
+        'department_description' => $department->description,
+      ),
     );
   }
-  /*$content['create_department'] = array(
-    '#theme' => 'link',
-    '#text' => 'New Department',
-    '#path' => 'department/new',
-    '#weight' => -100,
-    '#options' => array(
-      'attributes' => array('class' => array('button'), 'id' => 'new-class'),
-      'html' => FALSE,
-    ),
-    '#access' => user_access('create new department')
-  );*/
+
   $content['department_list'] = array(
     '#theme' => 'table',
     '#rows' => $rows,
     '#empty' => t('No Departments'),
     '#header' => array(t('Department Name'), t('Department Description')),
   );
+
   $content['pager'] = array(
-    '#theme' => 'pager'
+    '#theme' => 'pager',
   );
   return $content;
 }
 
+/**
+ * Implements hook_menu().
+ */
 function graduation_planner_department_menu() {
-  //  Departments link.
+  // Departments link.
   $menu['department'] = array(
     'title' => 'Departments',
     'page callback' => 'graduation_planner_department_list_departments',
     'access arguments' => array('access content'),
-    'type' => MENU_NORMAL_ITEM
+    'type' => MENU_NORMAL_ITEM,
   );
   $menu['department/list'] = array(
     'title' => 'Department list',
     'page callback' => 'graduation_planner_department_list_departments',
     'access arguments' => array('access content'),
-    'type' => MENU_NORMAL_ITEM | MENU_DEFAULT_LOCAL_TASK
+    'type' => MENU_NORMAL_ITEM | MENU_DEFAULT_LOCAL_TASK,
   );
-  
+
   // Submenu item.
   $menu['department/%graduation_planner_department'] = array(
-    'title' => t('Department'),
+    'title' => 'Department',
     'title callback' => 'graduation_planner_department_title',
     'title arguments' => array(1),
     'page callback' => 'graduation_planner_department_view',
     'page arguments' => array(1),
     'access arguments' => array('access content'),
-    'type' => MENU_NORMAL_ITEM
+    'type' => MENU_NORMAL_ITEM,
   );
 
   // 'View' menu_default_local_task.
   $menu['department/%graduation_planner_department/view'] = array(
-    'title' => t('Department'),
+    'title' => 'Department',
     'title callback' => 'graduation_planner_department_title',
     'title arguments' => array(1),
     'page callback' => 'graduation_planner_department_view',
     'page arguments' => array(1),
     'access arguments' => array('access content'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -100
+    'weight' => -100,
   );
 
   // 'Edit' menu_default_local_task.
   $menu['department/%graduation_planner_department/edit'] = array(
-    'title' => t('Edit'),
+    'title' => 'Edit',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_department_form', 1),
     'access callback' => 'graduation_planner_department_access',
     'access arguments' => array('edit own department', 1),
     'type' => MENU_LOCAL_TASK,
-    'weight' => -99
+    'weight' => -99,
   );
   // 'Delete' menu_local_task.
   $menu['department/%graduation_planner_department/delete'] = array(
-    'title' => t('Delete'),
+    'title' => 'Delete',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_department_delete_form', 1),
     'access callback' => 'graduation_planner_department_access',
     'access arguments' => array('delete own department', 1),
     'type' => MENU_LOCAL_TASK,
-    'weight' => -98
+    'weight' => -98,
   );
-  //  'Students' menu_local_task.
+  // 'Students' menu_local_task.
   $menu['department/%graduation_planner_department/students'] = array(
-    'title' => t('Students'),
+    'title' => 'Students',
     'page callback' => 'graduation_planner_department_user_get_students',
     'page arguments' => array(1),
     'access callback' => 'graduation_planner_department_access',
     'access arguments' => array('view students', 1),
-    'type' => MENU_LOCAL_TASK
+    'type' => MENU_LOCAL_TASK,
   );
   // 'Staff' menu_local_task.
   $menu['department/%graduation_planner_department/staff'] = array(
-    'title' => t('Staff'),
+    'title' => 'Staff',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_department_users_get_staff_form', 1),
     'access callback' => 'graduation_planner_department_access',
     'access arguments' => array('edit staff', 1),
-    'type' => MENU_LOCAL_TASK
+    'type' => MENU_LOCAL_TASK,
   );
-
 
   // 'New' link.
   $menu['department/new'] = array(
-    'title' => t('New Department'),
+    'title' => 'New department',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_department_form'),
     'access arguments' => array('create department'),
-    'type' => MENU_NORMAL_ITEM | MENU_LOCAL_TASK
+    'type' => MENU_NORMAL_ITEM | MENU_LOCAL_TASK,
   );
+
   return $menu;
 }
 
-function graduation_planner_department_delete_form($form, &$form_state, $department) {
-  //  Delete confirmation message.
-  drupal_set_message('Are you sure you want to delete this Department?  There may be other entities that depend on it.', 'warning');
+/**
+ * Department deletion form.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ * @param object $department
+ *   The department object to delete.
+ *
+ * @return array
+ *   A completed form array.
+ */
+function graduation_planner_department_delete_form(array $form, array &$form_state, $department) {
+  // Delete confirmation message.
+  drupal_set_message(t('Are you sure you want to delete this Department?  There may be other entities that depend on it.'), 'warning');
   $form['department_name'] = array(
     '#type' => 'item',
     '#title' => t('Department'),
-    '#markup' => $department->long_name
+    '#markup' => $department->long_name,
   );
   $form['department_id'] = array(
     '#type' => 'hidden',
-    '#value' => $department->department_id
+    '#value' => $department->department_id,
   );
   $form['delete'] = array(
     '#type' => 'submit',
-    '#value' => t('Delete')
+    '#value' => t('Delete'),
   );
   return $form;
 }
 
+/**
+ * Department deletion submission function.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state, passed by reference.
+ */
 function graduation_planner_department_delete_form_submit($form, &$form_state) {
   if (isset($form_state['values']['department_id'])) {
     $department = graduation_planner_department_load($form_state['values']['department_id']);
@@ -390,22 +502,32 @@ function graduation_planner_department_delete_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'department';
 }
 
+/**
+ * Delete a department.
+ *
+ * @param object $department
+ *   The department object to delete.
+ */
 function graduation_planner_department_delete($department) {
   entity_delete($department->type, $department->identifier());
   drupal_goto('department');
 }
 
+/**
+ * Implements hook_field_extra_fields().
+ */
 function graduation_planner_department_field_extra_fields() {
+  $extra = array();
   $extra['graduation_planner_department']['graduation_planner_department'] = array(
     'form' => array(
       'short_name' => array(
-        'label' => t('Department Short Name'),
-        'description' => t('Department Short Name'),
+        'label' => t('Department short name'),
+        'description' => t('Department short name'),
         'weight' => -5,
       ),
       'long_name' => array(
-        'label' => t('Department Long Name'),
-        'description' => t('Department Long Name'),
+        'label' => t('Department long name'),
+        'description' => t('Department long name'),
         'weight' => -4,
       ),
       'description' => array(
@@ -416,13 +538,13 @@ function graduation_planner_department_field_extra_fields() {
     ),
     'display' => array(
       'short_name' => array(
-        'label' => t('Department Short Name'),
-        'description' => t('Department Short Name'),
+        'label' => t('Department short name'),
+        'description' => t('Department short name'),
         'weight' => -5,
       ),
       'long_name' => array(
-        'label' => t('Department Long Name'),
-        'description' => t('Department Long Name'),
+        'label' => t('Department long name'),
+        'description' => t('Department long name'),
         'weight' => -4,
       ),
       'description' => array(
@@ -436,47 +558,85 @@ function graduation_planner_department_field_extra_fields() {
   return $extra;
 }
 
-function graduation_planner_department_access($permission, $entity = null) {
+/**
+ * Department access callback.
+ *
+ * @param string $permission
+ *   The string permission to check.
+ * @param object $entity
+ *   The entity to check permissions, if applicable.
+ *
+ * @return bool
+ *   TRUE if permission granted, FALSE otherwise.
+ */
+function graduation_planner_department_access($permission, $entity = NULL) {
   // Access permissions.
 
   global $user;
-  $access = false;
+  $access = FALSE;
   switch ($permission) {
     case 'delete any department':
       $access = user_access('delete any department');
       break;
+
     case 'delete own department':
-      $access = graduation_planner_department_access('delete any department', $entity) || graduation_planner_department_has_role($entity, $user, 'administrator');
+      $delete_any_department = graduation_planner_department_access('delete any department', $entity);
+      $is_administrator = graduation_planner_department_has_role($entity, $user, 'administrator');
+      $access = $delete_any_department || $is_administrator;
       break;
+
     case 'edit any department':
       $access = user_access('edit any department');
       break;
+
     case 'edit own department':
-      $access = graduation_planner_department_access('edit any department', $entity) || graduation_planner_department_has_role($entity, $user, 'administrator');
+      $edit_any_department = graduation_planner_department_access('edit any department', $entity);
+      $is_administrator = graduation_planner_department_has_role($entity, $user, 'administrator');
+
+      $access = $edit_any_department || $is_administrator;
       break;
+
     case 'join department as student':
-      $access = user_access('join department as student') && !graduation_planner_department_has_role($entity, $user, 'student');
+      $is_not_student = !graduation_planner_department_has_role($entity, $user, 'student');
+      $access = user_access('join department as student') && $is_not_student;
       break;
+
     case 'edit staff':
-      $access = user_access('edit any department') || graduation_planner_department_has_role($entity, $user, 'administrator');
+      $is_administrator = graduation_planner_department_has_role($entity, $user, 'administrator');
+
+      $access = user_access('edit any department') || $is_administrator;
       break;
+
     case 'view students':
-      $access = user_access('edit any department') || graduation_planner_department_has_role($entity, $user, array('administrator', 'staff', 'faculty', 'advisor'));
+      $is_advisor = graduation_planner_department_has_role($entity, $user, 'advisor');
+      $is_administrator = graduation_planner_department_has_role($entity, $user, 'administrator');
+
+      $access = user_access('edit any department') || $is_advisor || $is_administrator;
       break;
+
     case 'member of department':
+
       $access = graduation_planner_department_is_member($entity, $user);
       break;
   }
   return $access;
 }
 
+/**
+ * Department view function.
+ *
+ * @param object $department
+ *   The department object.
+ * @param string $view_mode
+ *   The view mode.
+ *
+ * @return array
+ *   A renderable array of content.
+ */
 function graduation_planner_department_view($department, $view_mode = 'full') {
   $department->content = array();
   $department->content = entity_get_controller($department->type)->buildContent($department, $view_mode);
-// Build fields content - this where the FieldAPI really comes in to play. The task
-// is relatively trivial for us - it all gets taken care of by Drupal core.
-  //field_attach_prepare_view('graduation_planner_class', array($class->class_id => $class), $view_mode);
-  //entity_prepare_view('graduation_planner_class', array($class->class_id => $class));
+
   $department->content += field_attach_view('graduation_planner_department', $department, $view_mode);
 
   $department->content += array(
@@ -489,75 +649,109 @@ function graduation_planner_department_view($department, $view_mode = 'full') {
   return $department->content;
 }
 
+/**
+ * Implements hook_permission().
+ */
 function graduation_planner_department_permission() {
   return array(
     // 'View any department' permission(advisor).
     'view any department' => array(
-      'title' => t('View Any Department'),
-      'description' => t('View any department.')
+      'title' => t('View any department'),
+      'description' => t('View any department.'),
     ),
     // 'View own department' permission(student).
     'view own department' => array(
-      'title' => t('View Own Department'),
-      'description' => t('View a department you are an administrator for.')
+      'title' => t('View own department'),
+      'description' => t('View a department you are an administrator for.'),
     ),
     // 'Create department' permission(advisor).
     'create department' => array(
-      'title' => t('Create Department'),
-      'description' => t('Create a new department')
+      'title' => t('Create department'),
+      'description' => t('Create a new department'),
     ),
     // 'Edit any department' permission(advisor).
     'edit any department' => array(
-      'title' => t('Edit Any Department'),
-      'description' => t('Edit any Department.')
+      'title' => t('Edit any department'),
+      'description' => t('Edit any department.'),
     ),
-    //  'Edit own department' permission(advisor).
+    // 'Edit own department' permission(advisor).
     'edit own department' => array(
-      'title' => t('Edit Own Department'),
-      'description' => t('Edit a department you are an administrator for.')
+      'title' => t('Edit own department'),
+      'description' => t('Edit a department you are an administrator for.'),
     ),
-    //  'Delete any department' permission(advisor).
+    // 'Delete any department' permission(advisor).
     'delete any department' => array(
-      'title' => t('Delete Any Department'),
-      'description' => t('Delete any Department.')
+      'title' => t('Delete any department'),
+      'description' => t('Delete any department.'),
     ),
-    //  'Delete own department' permissio(advisor).
+    // 'Delete own department' permissio(advisor).
     'delete own department' => array(
-      'title' => t('Delete Own Department'),
-      'description' => t('Delete a department you are an administator for.')
-    )
+      'title' => t('Delete own department'),
+      'description' => t('Delete a department you are an administator for.'),
+    ),
   );
 }
 
+/**
+ * Loads a department object from the database.
+ *
+ * @param int $department_id
+ *   The Department ID.
+ * @param bool $reset
+ *   Reset the static cache?
+ * 
+ * @return object
+ *   Returns a department object.
+ */
 function graduation_planner_department_load($department_id, $reset = FALSE) {
   $department_ids = (isset($department_id) ? array($department_id) : array());
   $department = graduation_planner_department_load_multiple($department_ids, array(), $reset);
   return $department ? reset($department) : FALSE;
 }
 
-function graduation_planner_department_load_multiple($department_ids = array(), $conditions = array(), $reset = false) {
+/**
+ * Loads department objects from the database.
+ *
+ * @param array $department_ids
+ *   The Department IDs.
+ * @param array $conditions
+ *   Filter conditions used for searching.
+ * @param bool $reset
+ *   Reset the static cache?
+ *
+ * @return object
+ *   Returns department objects.
+ */
+function graduation_planner_department_load_multiple($department_ids = array(), $conditions = array(), $reset = FALSE) {
   return entity_load('graduation_planner_department', $department_ids, $conditions, $reset);
 }
 
+/**
+ * Implements hook_theme().
+ */
 function graduation_planner_department_theme($existing, $type, $theme, $path) {
-  return array
-    (
-    'graduation_planner_department_users_get_staff_form' => array
-      (
-      'render element' => 'form'
+  return array(
+    'graduation_planner_department_users_get_staff_form' => array(
+      'render element' => 'form',
     ),
   );
 }
 
+/**
+ * Implements hook_block_info().
+ */
 function graduation_planner_department_block_info() {
   return array(
     'department' => array(
       'info' => t('Graduation Planner Department Dashboard Block'),
       'cache' => DRUPAL_CACHE_PER_USER,
-    )
+    ),
   );
 }
 
+/**
+ * Implements hook_block_view().
+ */
 function graduation_planner_department_block_view($delta = '') {
   $block = array();
   switch ($delta) {
@@ -571,8 +765,17 @@ function graduation_planner_department_block_view($delta = '') {
   return $block;
 }
 
+/**
+ * Retrieve classes belonging to a department.
+ *
+ * @param int $department_id
+ *   A department ID.
+ *
+ * @return array
+ *   An array of classes within a department.
+ */
 function graduation_planner_department_class_options($department_id) {
-  watchdog('department_id', $department_id);
+
   $query = db_select('graduation_planner_class', 'gpc');
   $query->fields('gpc', array('class_id'));
   $query->condition('gpc.class_department', $department_id);
@@ -586,19 +789,33 @@ function graduation_planner_department_class_options($department_id) {
   return $options;
 }
 
+/**
+ * Implements hook_exporter_definition().
+ */
 function graduation_planner_department_exporter_definition() {
   $info = entity_get_info('graduation_planner_department');
   return array('graduation_planner_department' => $info);
 }
 
+/**
+ * Implements hook_importer_definition().
+ */
 function graduation_planner_department_importer_definition() {
   return array(
     'graduation_planner_department' => array(
-      'import callback' => 'graduation_planner_department_import'
+      'import callback' => 'graduation_planner_department_import',
     ),
   );
 }
 
+/**
+ * Imports entities and revisions into the database.
+ *
+ * @param array $entities
+ *   An array of entities.
+ * @param array $revisions
+ *   An array of revisions.
+ */
 function graduation_planner_department_import($entities, $revisions) {
   watchdog('graduation_planner_department_import', print_r($entities, TRUE));
   $query = db_select('graduation_planner_department', 't');
@@ -610,21 +827,17 @@ function graduation_planner_department_import($entities, $revisions) {
 
   if (isset($revisions)) {
     foreach ($revisions as $revision) {
-      //watchdog('graduation_planner_department', print_r($revision, TRUE));
-     
+
       $original = entity_load('graduation_planner_department', array($revision->department_id));
-      
-      if(empty($original))
-      {
+
+      if (empty($original)) {
         $revision->is_new = TRUE;
         entity_save('graduation_planner_department', $revision);
-        
-      } else {
+      }
+      else {
         $revision->is_new_revision = TRUE;
         entity_save('graduation_planner_department', $revision);
       }
-      
     }
   }
-  
 }

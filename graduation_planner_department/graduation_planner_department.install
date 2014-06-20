@@ -194,8 +194,8 @@ function graduation_planner_department_schema() {
       'advisor_uid' => array(
         'description' => 'The uid of the advisor assigned to the member.',
         'type' => 'int',
-        'unsigned' => TRUE
-      )
+        'unsigned' => TRUE,
+      ),
     ),
     'primary key' => array('department_id', 'uid'),
   );
@@ -244,10 +244,6 @@ function graduation_planner_department_uninstall() {
   user_role_delete('department_administrator');
   user_role_delete('department_advisor');
 }
-
-
-
-
 
 /**
  * Implements hook_update_N().

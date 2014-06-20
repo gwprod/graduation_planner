@@ -20,6 +20,6 @@
  */
 function graduation_planner_class_admin_form(array $form, array &$form_state) {
 
-  // TODO:  Put something here.
+  // @todo Put something here.
   return $form;
 }

@@ -247,17 +247,6 @@ function graduation_planner_class_get_classes($department = NULL, $search_term =
       ),
     );
   }
-  /* $content['create_class'] = array(
-    '#theme' => 'link',
-    '#text' => t('New class'),
-    '#path' => 'class/new',
-    '#weight' => -100,
-    '#options' => array(
-    'attributes' => array('class' => array('button'), 'id' => 'new-class'),
-    'html' => FALSE,
-    ),
-    '#access' => graduation_planner_class_access('create class'),
-    ); */
   $content['class_list'] = array(
     '#theme' => 'table',
     '#rows' => $rows,
@@ -983,10 +972,10 @@ function graduation_planner_class_uri($class) {
  * Retrieves a GraduationPlannerClass object from the database by its title.
  *
  * @param string $course_title
- *    The title of the object to be retrieved from the database.
+ *   The title of the object to be retrieved from the database.
  *
  * @return object
- *    Returns the GraduationPlannerClass object retrieved.
+ *   Returns the GraduationPlannerClass object retrieved.
  */
 function graduation_planner_class_load_by_title($course_title) {
 
@@ -1028,9 +1017,9 @@ function graduation_planner_class_importer_definition() {
  * Imports GraduationPlannerClass entities and their revisions.
  *
  * @param array $entities
- *    An array of entities to put into the database.
+ *   An array of entities to put into the database.
  * @param array $revisions
- *    An array of revisions to put into the database.
+ *   An array of revisions to put into the database.
  */
 function graduation_planner_class_import(array $entities, array $revisions) {
   $query = db_select('graduation_planner_class', 't');

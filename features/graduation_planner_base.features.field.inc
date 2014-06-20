@@ -138,8 +138,8 @@ function graduation_planner_base_field_default_fields() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('First Name');
-  t('Last Name');
+  t('First name');
+  t('Last name');
 
   return $fields;
 }

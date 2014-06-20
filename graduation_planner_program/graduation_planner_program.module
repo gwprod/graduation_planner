@@ -1,26 +1,51 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @file graduation_planner_program module.
  */
+
 require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'graduation_planner_program') . "/graduation_planner_program.field.inc";
 
+/**
+ * GraduationPlannerProgram entity
+ */
 class GraduationPlannerProgram extends Entity {
 
+  /**
+   * Gets the title of the program.
+   * 
+   * @return string
+   *   The title of the program.
+   */
   protected function defaultLabel() {
     return $this->title;
   }
 
+  /**
+   * Gets the URI of the program.
+   * 
+   * @return array
+   *   A URI array.
+   */
   protected function defaultUri() {
     return array('path' => 'department/' . $this->department_id . '/program/' . $this->identifier());
   }
 
 }
 
+/**
+ * GraduationPlannerProgramController.
+ */
 class GraduationPlannerProgramController extends EntityAPIController {
 
+  /**
+   * Creates a GraduationPlannerProgram entity.
+   * 
+   * @param array $values
+   *   An array of values.
+   * @return object
+   *   A GraduationPlannerProgram entity.
+   */
   public function create(array $values = array()) {
 
     $values += array(
@@ -28,11 +53,26 @@ class GraduationPlannerProgramController extends EntityAPIController {
       'description' => '',
       'created' => REQUEST_TIME,
       'changed' => REQUEST_TIME,
-      'type' => 'graduation_planner_program'
+      'type' => 'graduation_planner_program',
     );
     return parent::create($values);
   }
 
+  /**
+   * GraduationPlannerProgram content builder.
+   * 
+   * @param object $entity
+   *   The program object.
+   * @param string $view_mode
+   *   The view mode.
+   * @param string $langcode
+   *   The language code.
+   * @param array $content
+   *   The content array.
+   * 
+   * @return array
+   *   A renderable content array.
+   */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
 
     $display_info = field_extra_fields_get_display('graduation_planner_program', 'graduation_planner_program', $view_mode);
@@ -51,7 +91,7 @@ class GraduationPlannerProgramController extends EntityAPIController {
       '#bundle' => $entity->type,
       '#items' => array(array('value' => graduation_planner_program_title($entity))),
       '#formatter' => 'text_default',
-      0 => array('#markup' => check_plain(graduation_planner_program_title($entity)))
+      0 => array('#markup' => check_plain(graduation_planner_program_title($entity))),
     );
     $content['description'] = array(
       '#theme' => 'field',
@@ -67,7 +107,7 @@ class GraduationPlannerProgramController extends EntityAPIController {
       '#bundle' => $entity->type,
       '#items' => array(array('value' => $entity->description)),
       '#formatter' => 'text_default',
-      0 => array('#markup' => check_plain($entity->description))
+      0 => array('#markup' => check_plain($entity->description)),
     );
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
@@ -75,6 +115,9 @@ class GraduationPlannerProgramController extends EntityAPIController {
 
 }
 
+/**
+ * Implements hook_entity_info().
+ */
 function graduation_planner_program_entity_info() {
   $entities = array();
   //  Entity information
@@ -88,7 +131,7 @@ function graduation_planner_program_entity_info() {
     'entity keys' => array(
       'id' => 'program_id',
       'bundle' => 'type',
-      'revision' => 'revision_id'
+      'revision' => 'revision_id',
     ),
     'bundle keys' => array(
       'bundle' => 'type',
@@ -121,10 +164,31 @@ function graduation_planner_program_entity_info() {
   return $entities;
 }
 
+/**
+ * Gets the URI of the program.
+ * 
+ * @param object $program
+ *   The program object
+ * @return array
+ *   A URI array.
+ */
 function graduation_planner_program_uri($program) {
   return array('path' => 'department/' . $program->department_id . '/program/' . $program->identifier());
 }
 
+/**
+ * Program access function.
+ * 
+ * @param string $permission
+ *   The string permission to test.
+ * @param object $entity
+ *   The program entity.
+ * 
+ * @return bool
+ *   TRUE if permission granted, FALSE otherwise.
+ * 
+ * @todo Do more here.
+ */
 function graduation_planner_program_access($permission, $entity = null) {
   return user_access($permission);
 }
@@ -435,6 +499,9 @@ function graduation_planner_program_field_extra_fields() {
   return $extra;
 }
 
+/**
+ * Implements hook_permission().
+ */
 function graduation_planner_program_permission() {
 
   return array(
@@ -565,6 +632,17 @@ function graduation_planner_program_get_course_requirements($program, $with_elec
   return $required_courses;
 }
 
+/**
+ * Generate a list of program requirements.
+ * 
+ * @param array $programs
+ *   Array of programs to compile requirements for.
+ * @param bool $create_chain
+ *   Create a chain (include prerequisites of each requirement).
+ * 
+ * @return array
+ *   An array of program requirements.
+ */
 function graduation_planner_program_get_course_requirements_multiple($programs = array(), $create_chain = TRUE) {
 
   // Create a blank array of course requirements.
@@ -649,9 +727,9 @@ function graduation_planner_program_create_chain($requirements, $include_prerequ
  * Compare array elements.
  *
  * @param array $a
- *   The first element
+ *   The first element.
  * @param array $b
- *   The second element
+ *   The second element.
  *
  * @return int
  *   Return -1 if less, 1 if more
@@ -678,7 +756,7 @@ function _graduation_planner_program_sort($a, $b) {
  * @return array
  *   The form array.
  */
-function graduation_planner_program_form($form, &$form_state, $department, $program = null) {
+function graduation_planner_program_form(array $form, array &$form_state, $department, $program = null) {
   // Create a hidden form element for the department_id.
   $form['department_id'] = array(
     '#type' => 'hidden',
@@ -883,11 +961,18 @@ function graduation_planner_program_program_types() {
     )
   );
 }
+
+/** 
+ * Implements hook_exporter_definition().
+ */
 function graduation_planner_program_exporter_definition() {
   $info = entity_get_info('graduation_planner_program');
   return array('graduation_planner_program' => $info);
 }
 
+/**
+ * Implements hook_importer_definition().
+ */
 function graduation_planner_program_importer_definition() {
   return array(
     'graduation_planner_program' => array(
@@ -896,7 +981,15 @@ function graduation_planner_program_importer_definition() {
   );
 }
 
-function graduation_planner_program_import($entities, $revisions) {
+/**
+ * Imports GraduationPlannerProgram entities and revisions into the database.
+ * 
+ * @param array $entities
+ *   An array of entities.
+ * @param array $revisions
+ *   An array of revisions.
+ */
+function graduation_planner_program_import(array $entities, array $revisions) {
   $query = db_select('graduation_planner_program', 't');
   $query->fields('t', array('program_id'));
   $results = $query->execute();

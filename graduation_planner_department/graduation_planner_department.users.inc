@@ -109,7 +109,15 @@ function _graduation_planner_department_user_get_staff($department, $search_term
   return $rows;
 }
 
-function graduation_planner_department_users_get_staff_form_validate($form, &$form_state) {
+/**
+ * Validate adding users to the department.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   Form state, passed by reference.
+ */
+function graduation_planner_department_users_get_staff_form_validate(array $form, array &$form_state) {
   if (!isset($form_state['input']['add_user']['name']) || $form_state['input']['add_user']['name'] = '') {
     form_set_error('add_user', t('To add a user, the name field must contain a name.'));
   }
@@ -182,9 +190,6 @@ function graduation_planner_department_users_get_staff_form($form, &$form_state,
     '#type' => 'submit',
     '#value' => t('Add user'),
   );
-
-
-
 
   // Gives the form a tree hierarchy structure.
 
@@ -311,7 +316,6 @@ function theme_graduation_planner_department_users_get_staff_form($variables) {
         'advisor' => drupal_render($form['users'][$user_id]['advisor']),
         'administrator' => drupal_render($form['users'][$user_id]['administrator']),
       ),
-      
     );
   }
 
@@ -351,7 +355,7 @@ function graduation_planner_department_user_get_students($department) {
   $query->fields('gpdm', array(
     'uid',
     'student',
-    'advisor_uid'
+    'advisor_uid',
       )
   );
   $query->condition('gpdm.student', 1);
@@ -458,22 +462,42 @@ function graduation_planner_department_users_update_db($department, $uid, $varia
       ->execute();
 }
 
+/**
+ * Retrieve the roles for a user in a department.
+ *
+ * @param object $department
+ *   The department object.
+ * @param object $user
+ *   The user object.
+ *
+ * @return array
+ *   An array of roles for this user and department.
+ */
 function graduation_planner_department_user_roles($department, $user) {
   $default_roles = array(
     'advisor' => 0,
     'student' => 0,
     'faculty' => 0,
     'staff' => 0,
-    'administrator' => 0
+    'administrator' => 0,
   );
   $roles = &drupal_static(__FUNCTION__);
   if (!isset($roles[$user->uid])) {
     $query = db_select('graduation_planner_department_member', 'gpdm');
-    $query->fields('gpdm', array('uid', 'department_id', 'student', 'advisor', 'faculty', 'staff', 'administrator'));
+    $query->fields('gpdm', array(
+      'uid',
+      'department_id',
+      'student',
+      'advisor',
+      'faculty',
+      'staff',
+      'administrator',
+        )
+    );
     $query->condition('gpdm.uid', $user->uid);
     $result = $query->execute();
     $role_data = $result->fetchAllAssoc('department_id', PDO::FETCH_ASSOC);
-    //print_r($role_data);
+
     foreach ($role_data as $department_id => $value) {
       $roles[$user->uid][$department_id] = array_merge($default_roles, $value);
     }
@@ -481,32 +505,62 @@ function graduation_planner_department_user_roles($department, $user) {
   return $roles[$user->uid][$department->department_id];
 }
 
+/**
+ * Determine if a user has a role in a department.
+ *
+ * @param object $department
+ *   The department object
+ * @param object $user
+ *   The user object.
+ * @param mixed $has_roles
+ *   A string role name or array of string role names.
+ *
+ * @return bool
+ *   TRUE if the user has the role, FALSE otherwise.
+ */
 function graduation_planner_department_has_role($department, $user, $has_roles) {
   $roles = graduation_planner_department_user_roles($department, $user);
-  //print_r($roles);
+
   if (isset($roles)) {
     if (is_array($has_roles)) {
       foreach ($has_roles as $role_id) {
-        if(isset($roles[$role_id]) && $roles[$role_id] == 1 )
-        {
+        if (isset($roles[$role_id]) && $roles[$role_id] == 1) {
           return TRUE;
         }
-        
       }
       return FALSE;
     }
     else {
-      return isset($roles[$has_roles]) ? $roles[$has_roles] : false;
+      return isset($roles[$has_roles]) ? $roles[$has_roles] : FALSE;
     }
   }
-  return false;
+  return FALSE;
 }
 
+/**
+ * Determine if the user is a member of the department.
+ *
+ * @param object $department
+ *   The department object.
+ * @param object $user
+ *   The user object.
+ * 
+ * @return bool
+ *   TRUE if the user is a member, FALSE otherwise.
+ */
 function graduation_planner_department_is_member($department, $user) {
   $members = &drupal_static(__FUNCTION__);
   if (!isset($members[$department->department_id][$user->user_id])) {
     $query = db_select('graduation_planner_department_member', 'gpdm');
-    $query->fields('gpdm', array('uid', 'student', 'advisor', 'faculty', 'staff', 'administrator'));
+    $query->fields('gpdm', array(
+      'uid',
+      'student',
+      'advisor',
+      'faculty',
+      'staff',
+      'administrator',
+        )
+    );
     $query->condition('gpdm.uid', $user->uid);
     $query->condition('gpdm.department_id', $department->department_id);
     $result = $query->execute();
@@ -516,6 +570,16 @@ function graduation_planner_department_is_member($department, $user) {
   return $members[$department->department_id][$user->user_id];
 }
 
+/**
+ * Assign an advisor to a user.
+ *
+ * @param object $department
+ *   The department object.
+ * @param object $user
+ *   The user object.
+ *
+ * @todo Refactor this.
+ */
 function graduation_planner_department_assign_advisor($department, $user) {
   $query = db_select('graduation_planner_department_member', 'gpdm');
   $query->fields('gpdm', array('uid', 'advisor_uid'));

@@ -590,20 +590,35 @@ function graduation_planner_class_section_entity_info() {
 function graduation_planner_class_section_uri($section) {
   return array('path' => 'class/' . $section->class_id . '/section/' . $section->identifier());
 }
-function graduation_planner_class__section_exporter_definition() {
+
+/**
+ * Implements hook_exporter_definition().
+ */
+function graduation_planner_class_section_exporter_definition() {
   $info = entity_get_info('graduation_planner_class_section');
   return array('graduation_planner_class_section' => $info);
 }
 
+/**
+ * Implements hook_importer_definition().
+ */
 function graduation_planner_class_section_importer_definition() {
   return array(
     'graduation_planner_class_section' => array(
-      'import callback' => 'graduation_planner_class_section_import'
+      'import callback' => 'graduation_planner_class_section_import',
     ),
   );
 }
 
-function graduation_planner_class_section_import($entities, $revisions) {
+/**
+ * Import entities function.
+ *
+ * @param array $entities
+ *   An array of entities to import.
+ * @param array $revisions
+ *   An array of revisions to import.
+ */
+function graduation_planner_class_section_import(array $entities, array $revisions) {
   $query = db_select('graduation_planner_class_section', 't');
   $query->fields('t', array('section_id'));
   $results = $query->execute();
@@ -612,20 +627,17 @@ function graduation_planner_class_section_import($entities, $revisions) {
   entity_delete_multiple('graduation_planner_class_section', array_keys($class_ids));
   if (isset($revisions)) {
     foreach ($revisions as $revision) {
-      
-     
+
       $original = entity_load('graduation_planner_class_section', array($revision->section_id));
-      
-      if(empty($original))
-      {
+
+      if (empty($original)) {
         $revision->is_new = TRUE;
         entity_save('graduation_planner_class_section', $revision);
-        
-      } else {
+      }
+      else {
         $revision->is_new_revision = TRUE;
         entity_save('graduation_planner_class_section', $revision);
       }
-      
     }
   }
 }

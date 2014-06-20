@@ -255,10 +255,10 @@ function graduation_planner_form_user_login_alter(array &$form, array &$form_sta
  * Load the user by their name.
  *
  * @param string $string
- *    The name of the user.
+ *   The name of the user.
  *
  * @return object
- *    Return a user object, if available.
+ *   Return a user object, if available.
  */
 function graduation_planner_user_load_by_name($string) {
   if (module_exists('realname')) {
@@ -271,10 +271,10 @@ function graduation_planner_user_load_by_name($string) {
  * Search for autocomplete matches for users, by name.
  *
  * @param string $string
- *    The string to search for.
+ *   The string to search for.
  *
  * @return array
- *    Autocomplete matches array.
+ *   Autocomplete matches array.
  */
 function graduation_planner_user_autocomplete($string = '') {
   if (module_exists('realname')) {
@@ -288,7 +288,7 @@ function graduation_planner_user_autocomplete($string = '') {
  * Search the realname table for data.
  *
  * @param string $string
- *    The string to search for.
+ *   The string to search for.
  */
 function _graduation_planner_realname_autocomplete($string = '') {
 
@@ -338,7 +338,7 @@ function graduation_planner_menu() {
 
   $items['admin/config/graduation_planner/basic'] = array(
     'title' => 'Configuration',
-    'description' => 'Edit Graduation Planner Global Settings.',
+    'description' => 'Edit graduation planner global settings.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_admin_form'),
     'access callback' => 'user_access',
@@ -347,8 +347,8 @@ function graduation_planner_menu() {
     'file' => 'graduation_planner.admin.inc',
   );
   $items['admin/config/graduation_planner/import'] = array(
-    'title' => 'Import Data',
-    'description' => 'Import Data previously exported by Graduation Planner',
+    'title' => 'Import data',
+    'description' => 'Import data previously exported by graduation planner',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('graduation_planner_admin_import_form'),
     'access arguments' => array('administer graduation planner'),
@@ -396,12 +396,12 @@ function graduation_planner_export() {
  * Retrieves entities and revisions from the database for export.
  *
  * @param string $entity_type
- *    The type of the entity.
+ *   The type of the entity.
  * @param array $definition
- *    The exporter definition of the entity.
+ *   The exporter definition of the entity.
  *
  * @return array
- *    Returns an array of entities and revisions.
+ *   Returns an array of entities and revisions.
  */
 function graduation_planner_exporter($entity_type, array $definition) {
 
@@ -428,7 +428,7 @@ function graduation_planner_exporter($entity_type, array $definition) {
  * Imports entities and revisions into the database.
  *
  * @param array $entities
- *    The entities to import.
+ *   The entities to import.
  */
 function graduation_planner_importer(array $entities) {
   $import_definitions = module_invoke_all('importer_definition');
@@ -475,14 +475,14 @@ function graduation_planner_terms() {
  * @todo Refactor this to graduation_planner.admin.inc
  *
  * @return array
- *    Return an array of term names.
+ *   Return an array of term names.
  */
 function graduation_planner_get_terms() {
   return array(
-    0 => t('Fall Quarter'),
-    1 => t('Winter Quarter'),
-    2 => t('Spring Quarter'),
-    3 => t('Summer Quarter'),
+    0 => t('Fall quarter'),
+    1 => t('Winter quarter'),
+    2 => t('Spring quarter'),
+    3 => t('Summer quarter'),
   );
 }
 
@@ -490,10 +490,10 @@ function graduation_planner_get_terms() {
  * Get machine_names for academic terms.
  *
  * @param array $terms
- *    Term IDs to retrieve machine names for.
+ *   Term IDs to retrieve machine names for.
  *
  * @return array
- *    Machine names for academic terms.
+ *   Machine names for academic terms.
  */
 function graduation_planner_get_term_machine_name(array $terms) {
   $terms_array = graduation_planner_terms();
@@ -530,7 +530,7 @@ function graduation_planner_class_standings() {
  * @todo This should not be hard-coded.
  *
  * @return array
- *    Return an array of academic years.
+ *   Return an array of academic years.
  */
 function graduation_planner_academic_years() {
   return array(

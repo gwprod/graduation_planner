@@ -52,10 +52,8 @@ function graduation_planner_plan_field_schema($field) {
         ),
         'course_data' => array(
           'type' => 'text',
-          
           'serialize' => TRUE,
-          
-        )
+        ),
       );
       break;
   }
