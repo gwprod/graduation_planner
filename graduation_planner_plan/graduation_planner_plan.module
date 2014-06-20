@@ -33,6 +33,7 @@ function graduation_planner_plan_ajax_callback($plan) {
   $plan_changes = $_POST['changes'];
 
   $validated = _graduation_planner_plan_validate_changes($plan_changes);
+  
   // Update the plan with changes.
   // @todo sanitize the changes to make sure no illicit data is being submitted.
   _graduation_planner_plan_change_plan($plan, $plan_changes);
